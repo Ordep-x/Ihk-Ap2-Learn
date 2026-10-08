@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AP2 Lernkartei — Fachinformatiker Anwendungsentwicklung</title>
+<script>
+// Apply any saved theme choice before first paint, so there's no flash of the
+// wrong theme while the rest of the page loads.
+(function(){
+  try{
+    var saved = localStorage.getItem('ap2-lernkartei-theme');
+    if(saved === 'light' || saved === 'dark'){
+      document.documentElement.setAttribute('data-theme', saved);
+    }
+  }catch(e){}
+})();
+</script>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AP2 Lernkartei">
+<meta name="theme-color" content="#22314A">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon-192.png" sizes="192x192" type="image/png">
+<link rel="icon" href="./icon-512.png" sizes="512x512" type="image/png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,500;0,600;0,700;1,500&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F1ECDC;
+    --paper-2:#E9E2CC;
+    --card:#FBF8EE;
+    --ink:#22314A;
+    --ink-soft:#4C5A72;
+    --rule:#C9BE9E;
+    --stamp-1:#A6402F;   /* Planen */
+    --stamp-2:#2C6E62;   /* Algorithmen */
+    --stamp-3:#7A5A2E;   /* Wiso */
+    --stamp-1-bg:#F4DAD3;
+    --stamp-2-bg:#D9EAE5;
+    --stamp-3-bg:#EDE1C9;
+    --shadow:0 1px 0 rgba(34,49,74,.06);
+    --focus:#2C6E62;
+  }
+  :root:not([data-theme="light"]){
+    @media (prefers-color-scheme: dark){
+      --paper:#1B1F23;
+      --paper-2:#20252A;
+      --card:#26292C;
+      --ink:#EFE9D8;
+      --ink-soft:#B9B2A0;
+      --rule:#3B3E3A;
+      --stamp-1-bg:#3A2624;
+      --stamp-2-bg:#1E322D;
+      --stamp-3-bg:#332B1C;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#1B1F23;
+    --paper-2:#20252A;
+    --card:#26292C;
+    --ink:#EFE9D8;
+    --ink-soft:#B9B2A0;
+    --rule:#3B3E3A;
+    --stamp-1-bg:#3A2624;
+    --stamp-2-bg:#1E322D;
+    --stamp-3-bg:#332B1C;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 600px at 15% -10%, var(--paper-2), transparent 60%),
+      var(--paper);
+    color:var(--ink);
+    font-family:'Spectral', Georgia, 'Times New Roman', serif;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    min-height:100%;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:640px;
+    margin:0 auto;
+    padding:28px 20px 48px;
+  }
+  header{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    gap:12px;
+    border-bottom:1px solid var(--rule);
+    padding-bottom:14px;
+    margin-bottom:20px;
+  }
+  h1{
+    font-size:1.3rem;
+    font-weight:700;
+    margin:0;
+    letter-spacing:.2px;
+  }
+  h1 small{
+    display:block;
+    font-family:'JetBrains Mono', monospace;
+    font-weight:500;
+    font-size:.68rem;
+    letter-spacing:.06em;
+    color:var(--ink-soft);
+    margin-top:4px;
+    text-transform:none;
+  }
+  .drawer-no{
+    font-family:'JetBrains Mono', monospace;
+    font-size:.72rem;
+    color:var(--ink-soft);
+    text-align:right;
+    white-space:nowrap;
+  }
+  .header-right{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:8px;
+  }
+  .theme-toggle{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:.68rem;
+    letter-spacing:.02em;
+    padding:5px 9px;
+    border-radius:3px;
+    border:1px solid var(--rule);
+    background:transparent;
+    color:var(--ink-soft);
+    cursor:pointer;
+    transition:background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .theme-toggle:hover{border-color:var(--ink-soft); color:var(--ink);}
+  .theme-toggle:focus-visible{outline:2px solid var(--focus); outline-offset:2px;}
+  .theme-toggle svg{width:13px; height:13px; flex:none;}
+  .theme-toggle svg *{stroke:currentColor;}
+
+  .filters{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-bottom:18px;
+  }
+  .chip{
+    font-family:'JetBrains Mono', monospace;
+    font-size:.72rem;
+    padding:6px 11px;
+    border-radius:3px;
+    border:1px solid var(--rule);
+    background:transparent;
+    color:var(--ink-soft);
+    cursor:pointer;
+    transition:background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .chip:hover{border-color:var(--ink-soft);}
+  .chip:focus-visible{outline:2px solid var(--focus); outline-offset:2px;}
+  .chip[data-active="true"]{
+    color:var(--ink);
+    border-color:var(--ink);
+    background:var(--card);
+  }
+  .chip .dot{
+    display:inline-block;
+    width:7px;height:7px;
+    border-radius:50%;
+    margin-right:6px;
+    position:relative;
+    top:-1px;
+  }
+
+  .subfilters{
+    margin-top:-10px;
+    margin-bottom:22px;
+  }
+  .subfilters .chip{
+    font-size:.66rem;
+    padding:5px 10px;
+    opacity:.85;
+  }
+  .subfilters .chip[data-active="true"]{
+    opacity:1;
+  }
+
+  .progressbar{
+    height:3px;
+    background:var(--rule);
+    border-radius:2px;
+    overflow:hidden;
+    margin-bottom:6px;
+  }
+  .progressbar > div{
+    height:100%;
+    background:var(--ink);
+    width:0%;
+    transition:width .25s ease;
+  }
+  .progress-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:.68rem;
+    color:var(--ink-soft);
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:22px;
+  }
+
+  .stage{
+    perspective:1400px;
+    margin-bottom:20px;
+  }
+  .card{
+    position:relative;
+    min-height:280px;
+    transform-style:preserve-3d;
+    transition:transform .5s cubic-bezier(.2,.7,.3,1);
+    cursor:pointer;
+  }
+  .card.flipped{transform:rotateY(180deg);}
+  .face{
+    position:absolute;
+    inset:0;
+    backface-visibility:hidden;
+    background:var(--card);
+    border:1px solid var(--rule);
+    border-radius:2px;
+    box-shadow:0 1px 2px rgba(0,0,0,.05), 0 8px 20px -12px rgba(34,49,74,.25);
+    padding:26px 24px 22px;
+    display:flex;
+    flex-direction:column;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .face::before{
+    content:'';
+    position:absolute;
+    left:0; right:0; top:44px;
+    height:1px;
+    background:repeating-linear-gradient(to right, var(--rule) 0 6px, transparent 6px 10px);
+    opacity:.55;
+  }
+  .face.back{transform:rotateY(180deg);}
+
+  .tab{
+    align-self:flex-start;
+    font-family:'JetBrains Mono', monospace;
+    font-size:.66rem;
+    letter-spacing:.04em;
+    padding:4px 9px 4px 8px;
+    border-radius:2px;
+    margin-bottom:16px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .tab .dot{width:6px;height:6px;border-radius:50%;}
+
+  .facelabel{
+    font-family:'JetBrains Mono', monospace;
+    font-size:.62rem;
+    color:var(--ink-soft);
+    letter-spacing:.08em;
+    margin-bottom:10px;
+  }
+  .qtext{
+    font-size:1.18rem;
+    line-height:1.5;
+    font-weight:600;
+    flex:1;
+  }
+  .atext{
+    font-size:1.03rem;
+    line-height:1.56;
+    flex:1;
+    font-weight:500;
+  }
+  .hint{
+    margin-top:auto;
+    padding-top:14px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:.66rem;
+    color:var(--ink-soft);
+    border-top:1px dashed var(--rule);
+  }
+  .extra:empty{ display:none; }
+  .codeblock{
+    margin:12px 0 0;
+    padding:11px 13px;
+    background:var(--paper-2);
+    border:1px solid var(--rule);
+    border-radius:3px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:.72rem;
+    line-height:1.55;
+    white-space:pre-wrap;
+    word-break:break-word;
+    overflow-wrap:anywhere;
+    overflow-x:auto;
+    color:var(--ink);
+  }
+  .diagram{
+    margin:12px 0 0;
+    padding:10px;
+    background:var(--paper-2);
+    border:1px solid var(--rule);
+    border-radius:3px;
+  }
+  .diagram svg{
+    display:block;
+    width:100%;
+    height:auto;
+  }
+  .cardno{
+    position:absolute;
+    bottom:14px;
+    right:18px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:.66rem;
+    color:var(--ink-soft);
+  }
+
+  .controls{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .navgroup{display:flex; gap:8px;}
+  button.ctrl{
+    font-family:'JetBrains Mono', monospace;
+    font-size:.75rem;
+    padding:9px 14px;
+    border-radius:3px;
+    border:1px solid var(--rule);
+    background:var(--card);
+    color:var(--ink);
+    cursor:pointer;
+  }
+  button.ctrl:hover{border-color:var(--ink-soft);}
+  button.ctrl:focus-visible{outline:2px solid var(--focus); outline-offset:2px;}
+  button.ctrl:disabled{opacity:.35; cursor:default;}
+  button.ctrl.primary{
+    background:var(--ink);
+    color:var(--paper);
+    border-color:var(--ink);
+  }
+
+  .judge{
+    display:flex;
+    gap:10px;
+    margin-bottom:26px;
+  }
+  .judge button{
+    flex:1;
+    font-family:'JetBrains Mono', monospace;
+    font-size:.75rem;
+    padding:11px 10px;
+    border-radius:3px;
+    cursor:pointer;
+    border:1px solid var(--rule);
+    background:transparent;
+    color:var(--ink-soft);
+    transition:opacity .15s ease;
+  }
+  .judge button:focus-visible{outline:2px solid var(--focus); outline-offset:2px;}
+  .judge .no{color:var(--stamp-1);}
+  .judge .yes{color:var(--stamp-2);}
+  .judge button:disabled{opacity:.3; cursor:default;}
+
+  footer{
+    text-align:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size:.66rem;
+    color:var(--ink-soft);
+    margin-top:8px;
+  }
+  footer button{
+    background:none;border:none;
+    font-family:inherit;font-size:inherit;
+    color:var(--ink-soft);
+    text-decoration:underline;
+    cursor:pointer;
+    padding:4px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .card{transition:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Lernkartei AP2
+      <small>Fachinformatiker/-in Anwendungsentwicklung</small>
+    </h1>
+    <div class="header-right">
+      <div class="drawer-no" id="drawerNo">Schublade 01</div>
+      <button type="button" class="theme-toggle" id="themeToggle" aria-label="Design umschalten"></button>
+    </div>
+  </header>
+
+  <div class="filters" id="filters"></div>
+  <div class="filters subfilters" id="subfilters"></div>
+
+  <div class="progressbar"><div id="progressFill"></div></div>
+  <div class="progress-label">
+    <span id="progressText">Karte 1 von 230</span>
+    <span id="knownText">0 gewusst</span>
+  </div>
+
+  <div class="stage">
+    <div class="card" id="card" tabindex="0" role="button" aria-label="Karte umdrehen">
+      <div class="face front">
+        <div class="tab" id="tabFront"><span class="dot"></span><span id="tabTextFront"></span></div>
+        <div class="facelabel">FRAGE</div>
+        <div class="qtext" id="qtext"></div>
+        <div class="extra" id="qextra"></div>
+        <div class="hint">Tippen oder Leertaste zum Umdrehen</div>
+        <div class="cardno" id="cardnoFront"></div>
+      </div>
+      <div class="face back">
+        <div class="tab" id="tabBack"><span class="dot"></span><span id="tabTextBack"></span></div>
+        <div class="facelabel">ANTWORT</div>
+        <div class="atext" id="atext"></div>
+        <div class="extra" id="aextra"></div>
+        <div class="cardno" id="cardnoBack"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="navgroup">
+      <button class="ctrl" id="prevBtn">&larr; Zurück</button>
+      <button class="ctrl" id="flipBtn">Umdrehen</button>
+    </div>
+    <button class="ctrl primary" id="nextBtn">Weiter &rarr;</button>
+  </div>
+
+  <div class="judge">
+    <button class="no" id="noBtn">✕ Nochmal</button>
+    <button class="yes" id="yesBtn">✓ Gewusst</button>
+  </div>
+
+  <footer>
+    <button id="shuffleBtn">mischen</button> ·
+    <button id="resetBtn">Fortschritt zurücksetzen</button>
+  </footer>
+
+</div>
+
+<script>
+const CATS = {
+  plan:  { label: 'Planen eines Softwareproduktes', short: 'Planen', var: '--stamp-1', bg: '--stamp-1-bg' },
+  algo:  { label: 'Entwicklung & Umsetzung von Algorithmen', short: 'Algorithmen', var: '--stamp-2', bg: '--stamp-2-bg' },
+  wiso:  { label: 'Wirtschafts- und Sozialkunde', short: 'Wiso', var: '--stamp-3', bg: '--stamp-3-bg' },
+};
+
+const SUBLABELS = {
+  'uml': 'UML & ERM',
+  'scrum': 'Scrum & Kanban',
+  'vorgehen': 'Vorgehensmodelle',
+  'wirtschaftlichkeit': 'Wirtschaftlichkeitsrechnung',
+  'pm': 'Projektmanagement',
+  'test': 'Test & Qualität',
+  'anforderungen': 'Anforderungen',
+  'recht': 'Verträge & Recht',
+  'sicherheit': 'IT-Sicherheit & Datenschutz',
+  'lizenz': 'Lizenzmodelle',
+  'sonstiges-plan': 'Weiteres',
+  'sql': 'SQL & Datenbanken',
+  'pseudocode': 'Pseudocode & Programmablauf',
+  'ds': 'Datenstrukturen',
+  'sort': 'Sortieren & Suchen',
+  'oop': 'OOP-Grundlagen',
+  'pattern': 'Entwurfsmuster & Architektur',
+  'netz': 'Netzwerke',
+  'rekursion': 'Rekursion & Zahlensysteme',
+  'praxis': 'Entwicklungspraxis',
+  'sonstiges-algo': 'Weiteres',
+  'arbeitsrecht': 'Arbeitsrecht',
+  'ausbildung': 'Ausbildung & BBiG',
+  'tarif': 'Tarif & Mitbestimmung',
+  'unternehmen': 'Unternehmensformen',
+  'wirtschaft': 'Wirtschaft & Markt',
+  'steuern': 'Steuern & Sozialversicherung',
+  'schutz': 'Datenschutz & Arbeitsschutz',
+  'sonstiges-wiso': 'Weiteres',
+};
+
+const DECK = [
+  // ================= Planen eines Softwareproduktes =================
+  {cat:'plan', sub:'anforderungen', q:"Was unterscheidet ein Lastenheft von einem Pflichtenheft?", a:"Das Lastenheft beschreibt aus Kundensicht das WAS und WOFÜR (Anforderungen). Das Pflichtenheft beschreibt aus Auftragnehmersicht das WIE (technische Umsetzung) und wird vom Auftragnehmer auf Basis des Lastenhefts erstellt."},
+  {cat:'plan', sub:'anforderungen', q:"Was bedeutet die SMART-Regel bei der Zieldefinition?", a:"Ziele sollen Spezifisch, Messbar, Attraktiv/Akzeptiert, Realistisch und Terminiert formuliert sein."},
+  {cat:'plan', sub:'scrum', q:"Nenne die drei Verantwortlichkeiten (umgangssprachlich oft noch \"Rollen\" genannt) im Scrum Team gemäß aktuellem Scrum Guide.", a:"Product Owner (verantwortet den Wert der Arbeit und das Product Backlog), Scrum Master (verantwortet die Etablierung von Scrum, coacht das Team und beseitigt Hindernisse) und die Developers (die das Increment erstellen). Seit der Scrum-Guide-Revision 2020 heißen diese drei offiziell \"Verantwortlichkeiten\" statt \"Rollen\", und es gibt kein eigenständig benanntes \"Entwicklungsteam\" mehr — alle bilden gemeinsam das eine Scrum Team."},
+  {cat:'plan', sub:'scrum', q:"Was ist ein Sprint in Scrum?", a:"Ein fester, meist 1–4 Wochen langer Zeitraum, in dem das Team ein potenziell auslieferbares Produktinkrement erstellt. Die Länge bleibt während des Projekts konstant."},
+  {cat:'plan', sub:'scrum', q:"Wie unterscheiden sich Wasserfallmodell und agile Vorgehensmodelle grundsätzlich?", a:"Das Wasserfallmodell durchläuft Phasen strikt sequenziell und abgeschlossen (Planung, Design, Umsetzung, Test, Betrieb). Agile Modelle wie Scrum arbeiten iterativ-inkrementell mit kurzen Zyklen und laufender Anpassung an Änderungen."},
+  {cat:'plan', sub:'uml', q:"Was zeigt ein UML-Anwendungsfalldiagramm (Use-Case-Diagramm)?", a:"Es zeigt Akteure (Nutzer/Systeme) und die Anwendungsfälle (Funktionen), die sie mit dem System ausführen können, sowie Beziehungen wie include und extend."},
+  {cat:'plan', sub:'uml', q:"Was ist der Unterschied zwischen Aggregation und Komposition in UML?", a:"Beide sind \"Teil-Ganzes\"-Beziehungen. Bei der Aggregation kann der Teil unabhängig vom Ganzen existieren (offene Raute). Bei der Komposition ist der Teil existenzabhängig vom Ganzen (gefüllte Raute) — wird das Ganze gelöscht, verschwindet auch der Teil."},
+  {cat:'plan', sub:'wirtschaftlichkeit', q:"Wie berechnet sich der Return on Investment (ROI)?", a:"ROI = (Gewinn / eingesetztes Kapital) × 100. Er zeigt die prozentuale Rendite einer Investition."},
+  {cat:'plan', sub:'wirtschaftlichkeit', q:"Was ermittelt die statische Amortisationsrechnung?", a:"Den Zeitraum, nach dem die Anschaffungskosten einer Investition durch die erzielten Rückflüsse (Einzahlungsüberschüsse) wieder eingespielt sind."},
+  {cat:'plan', sub:'wirtschaftlichkeit', q:"Was ist eine Nutzwertanalyse und wofür wird sie eingesetzt?", a:"Ein Verfahren, um mehrere Alternativen (z. B. Software-Angebote) anhand gewichteter Kriterien vergleichbar zu bewerten und eine begründete Entscheidung zu treffen."},
+  {cat:'plan', sub:'pm', q:"Wie definiert man Risiko im Projektmanagement (vereinfachte Formel)?", a:"Risiko = Eintrittswahrscheinlichkeit × Schadenshöhe (Tragweite). Darauf aufbauend werden Gegenmaßnahmen priorisiert."},
+  {cat:'plan', sub:'pm', q:"Was ist der kritische Pfad in der Netzplantechnik?", a:"Die Abfolge von Vorgängen mit der längsten Gesamtdauer und ohne Zeitpuffer. Verzögert sich ein Vorgang auf diesem Pfad, verzögert sich das gesamte Projekt."},
+  {cat:'plan', sub:'scrum', q:"Was ist das Grundprinzip von Kanban?", a:"Visualisierung des Arbeitsflusses auf einem Board mit Spalten (z. B. To do / In Arbeit / Fertig) und Begrenzung der gleichzeitig bearbeiteten Aufgaben (WIP-Limit), um den Durchfluss zu optimieren."},
+  {cat:'plan', sub:'scrum', q:"Was bedeutet \"Definition of Done\" in Scrum?", a:"Ein im Team vereinbartes, verbindliches Kriterienset, das erfüllt sein muss, damit ein Product-Backlog-Element als fertiggestellt gilt."},
+  {cat:'plan', sub:'test', q:"Was ist ein Pflichtenheft-Bestandteil \"Abnahmekriterien\"?", a:"Konkrete, überprüfbare Kriterien, anhand derer Auftraggeber und Auftragnehmer gemeinsam feststellen, ob das Softwareprodukt vertragsgemäß fertiggestellt wurde."},
+  {cat:'plan', sub:'test', q:"Was ist der Unterschied zwischen Verifikation und Validierung?", a:"Verifikation prüft \"Bauen wir das Produkt richtig?\" (Erfüllung der Spezifikation). Validierung prüft \"Bauen wir das richtige Produkt?\" (Erfüllung des tatsächlichen Kundenbedarfs)."},
+  {cat:'plan', sub:'anforderungen', q:"Was ist eine funktionale Anforderung?", a:"Eine Anforderung, die beschreibt, WAS ein System tun soll bzw. welche Funktionen es bereitstellen muss (z. B. \"Das System muss Rechnungen erstellen können\")."},
+  {cat:'plan', sub:'anforderungen', q:"Was ist eine nichtfunktionale Anforderung? Nenne ein Beispiel.", a:"Eine Anforderung an die Qualität/Rahmenbedingungen des Systems statt an konkrete Funktionen, z. B. Performance, Sicherheit, Benutzerfreundlichkeit oder Skalierbarkeit — etwa \"Die Seite muss in unter 2 Sekunden laden\"."},
+  {cat:'plan', sub:'vorgehen', q:"Was ist das V-Modell (XT)?", a:"Ein Vorgehensmodell, das jeder Entwicklungsphase (linker \"V\"-Ast) eine entsprechende Testphase (rechts) gegenüberstellt, z. B. Anforderungsanalyse ↔ Abnahmetest, Grobentwurf ↔ Systemtest, Feinentwurf ↔ Integrationstest, Implementierung ↔ Modultest."},
+  {cat:'plan', sub:'vorgehen', q:"Was ist das Spiralmodell nach Boehm?", a:"Ein iteratives, risikogetriebenes Vorgehensmodell, bei dem das Projekt in mehreren Zyklen durchlaufen wird, wobei jeder Zyklus Zielbestimmung, Risikoanalyse, Entwicklung/Test und Planung des nächsten Zyklus umfasst."},
+  {cat:'plan', sub:'vorgehen', q:"Was ist Prototyping als Vorgehensmodell?", a:"Es werden frühzeitig funktionsfähige Vorabversionen (Prototypen) des Systems erstellt, um Anforderungen zu klären oder Konzepte zu testen, bevor die endgültige Lösung entwickelt wird."},
+  {cat:'plan', sub:'vorgehen', q:"Was ist Extreme Programming (XP)?", a:"Ein agiles Vorgehensmodell mit Praktiken wie Pair Programming, Test-Driven Development, kontinuierlicher Integration und kurzen Release-Zyklen, das auf enge Kundenzusammenarbeit setzt."},
+  {cat:'plan', sub:'scrum', q:"Was steht im Product Backlog bei Scrum?", a:"Eine priorisierte, sich ständig weiterentwickelnde Liste aller Anforderungen, Funktionen und Änderungen, die am Produkt vorgenommen werden sollen, gepflegt vom Product Owner."},
+  {cat:'plan', sub:'scrum', q:"Was ist ein Sprint Backlog?", a:"Der Sprint Backlog besteht laut aktuellem Scrum Guide aus drei Elementen: dem Sprint-Ziel (Warum), den für den Sprint ausgewählten Product-Backlog-Einträgen (Was) und einem Plan zu deren Umsetzung (Wie). Er wird von den Developers erstellt und gepflegt und im Sprintverlauf laufend aktualisiert."},
+  {cat:'plan', sub:'scrum', q:"Was passiert im Daily Scrum?", a:"Ein auf 15 Minuten timeboxtes, tägliches Event der Developers, um den Fortschritt in Richtung Sprint-Ziel zu überprüfen und den Sprint Backlog bei Bedarf anzupassen. Der aktuelle Scrum Guide schreibt dafür kein festes Frage-Schema (z. B. \"gestern/heute/Hindernisse\") mehr vor — das Team kann Struktur und Technik frei wählen, solange der Fokus auf dem Sprint-Ziel erhalten bleibt."},
+  {cat:'plan', sub:'scrum', q:"Was ist ein Sprint Review?", a:"Ein Termin am Ende des Sprints, bei dem das Team das fertige Produktinkrement den Stakeholdern präsentiert und Feedback einholt."},
+  {cat:'plan', sub:'scrum', q:"Was ist eine Sprint Retrospective?", a:"Ein team-internes Treffen nach dem Sprint Review, in dem reflektiert wird, wie die Zusammenarbeit und der Prozess verbessert werden können."},
+  {cat:'plan', sub:'scrum', q:"Was ist ein Burndown-Chart?", a:"Ein Diagramm, das den verbleibenden Arbeitsaufwand (z. B. Story Points) über die Zeit eines Sprints darstellt und so den Fortschritt visualisiert."},
+  {cat:'plan', sub:'scrum', q:"Was sind Story Points?", a:"Eine relative Maßeinheit zur Schätzung des Aufwands/der Komplexität einer User Story, unabhängig von absoluter Zeit."},
+  {cat:'plan', sub:'scrum', q:"Was ist Planning Poker?", a:"Eine Schätztechnik, bei der Teammitglieder verdeckt Karten mit Aufwandsschätzungen (oft Fibonacci-Zahlen) wählen und diese gleichzeitig aufdecken, um zu einer gemeinsamen Einschätzung zu kommen."},
+  {cat:'plan', sub:'scrum', q:"Was ist eine User Story?", a:"Eine kurze, aus Anwendersicht formulierte Beschreibung einer Anforderung, oft im Format \"Als [Rolle] möchte ich [Ziel], damit [Nutzen]\"."},
+  {cat:'plan', sub:'scrum', q:"Was bedeutet das WIP-Limit bei Kanban?", a:"Es begrenzt die Anzahl der Aufgaben, die gleichzeitig in einer Spalte/einem Arbeitsschritt bearbeitet werden dürfen, um Engpässe zu vermeiden und den Durchfluss zu verbessern."},
+  {cat:'plan', sub:'scrum', q:"Was zeigt ein Cumulative-Flow-Diagram?", a:"Es zeigt über die Zeit, wie viele Arbeitseinheiten sich in welchem Status (z. B. To do, In Arbeit, Fertig) befinden, und macht Engpässe im Arbeitsfluss sichtbar."},
+  {cat:'plan', sub:'uml', q:"Was ist der Unterschied zwischen Assoziation und Vererbung in UML-Klassendiagrammen?", a:"Eine Assoziation beschreibt eine Beziehung zwischen zwei eigenständigen Klassen (z. B. \"nutzt\", \"hat\"). Vererbung (Generalisierung) beschreibt eine Ist-ein-Beziehung, bei der eine Klasse Eigenschaften einer Oberklasse übernimmt."},
+  {cat:'plan', sub:'uml', q:"Was gibt die Multiplizität in einem UML-Klassendiagramm an?", a:"Sie gibt an, wie viele Objekte der einen Klasse mit wie vielen Objekten der anderen Klasse in Beziehung stehen können (z. B. 1, 0..1, 1..*, 0..*)."},
+  {cat:'plan', sub:'uml', q:"Was zeigt ein UML-Sequenzdiagramm?", a:"Es stellt den zeitlichen Ablauf von Nachrichten/Methodenaufrufen zwischen Objekten dar und eignet sich zur Visualisierung dynamischer Abläufe."},
+  {cat:'plan', sub:'uml', q:"Was zeigt ein UML-Aktivitätsdiagramm?", a:"Es visualisiert den Ablauf eines Prozesses oder Algorithmus mit Aktivitäten, Entscheidungen, parallelen Abläufen und Start-/Endpunkten — ähnlich einem Flussdiagramm."},
+  {cat:'plan', sub:'uml', q:"Was zeigt ein UML-Zustandsdiagramm (State Machine)?", a:"Es zeigt die möglichen Zustände eines Objekts und die Übergänge (Transitionen) zwischen diesen Zuständen, ausgelöst durch Ereignisse."},
+  {cat:'plan', sub:'uml', q:"Was ist ein Entity-Relationship-Modell (ERM)?", a:"Ein Modell zur Darstellung von Datenobjekten (Entitäten), ihren Attributen und den Beziehungen zwischen ihnen — Grundlage für den Datenbankentwurf."},
+  {cat:'plan', sub:'uml', q:"Was bedeutet Kardinalität in einem ER-Modell?", a:"Sie beschreibt, wie viele Instanzen einer Entität mit wie vielen Instanzen einer anderen Entität in Beziehung stehen können, z. B. 1:1, 1:n, n:m."},
+  {cat:'plan', sub:'uml', q:"Wie löst man eine n:m-Beziehung im relationalen Datenmodell auf?", a:"Durch eine zusätzliche Zwischentabelle (Verbindungstabelle), die die Primärschlüssel beider beteiligten Tabellen als Fremdschlüssel enthält."},
+  {cat:'plan', sub:'wirtschaftlichkeit', q:"Was ist die Kapitalwertmethode?", a:"Ein dynamisches Investitionsrechnungsverfahren, bei dem alle zukünftigen Ein- und Auszahlungen einer Investition auf den heutigen Zeitpunkt abgezinst und summiert werden; ist der Kapitalwert positiv, gilt die Investition als vorteilhaft."},
+  {cat:'plan', sub:'wirtschaftlichkeit', q:"Was ist der Unterschied zwischen statischer und dynamischer Investitionsrechnung?", a:"Statische Verfahren (z. B. Amortisationsrechnung) berücksichtigen keinen Zeitwert des Geldes, dynamische Verfahren (z. B. Kapitalwertmethode) diskontieren zukünftige Zahlungen auf den heutigen Wert."},
+  {cat:'plan', sub:'wirtschaftlichkeit', q:"Was ist der Break-even-Point?", a:"Der Punkt, an dem Erlöse und Kosten gleich hoch sind — ab hier erwirtschaftet ein Produkt/Projekt Gewinn."},
+  {cat:'plan', sub:'wirtschaftlichkeit', q:"Was umfasst eine Kosten-Nutzen-Analyse?", a:"Der Vergleich der voraussichtlichen Kosten einer Maßnahme (z. B. Softwareeinführung) mit ihrem erwarteten Nutzen, um eine Entscheidungsgrundlage zu schaffen."},
+  {cat:'plan', sub:'pm', q:"Was ist eine Netzplantechnik-Vorwärtsterminierung?", a:"Die Berechnung der frühestmöglichen Anfangs- und Endzeitpunkte aller Vorgänge eines Projekts, ausgehend vom Projektstart."},
+  {cat:'plan', sub:'pm', q:"Was ist eine Netzplantechnik-Rückwärtsterminierung?", a:"Die Berechnung der spätestmöglichen Anfangs- und Endzeitpunkte aller Vorgänge, ausgehend vom (fixen) Projektende."},
+  {cat:'plan', sub:'pm', q:"Was ist ein Puffer (Slack) in der Netzplantechnik?", a:"Die Zeitspanne, um die sich ein Vorgang verschieben kann, ohne den Gesamtendtermin des Projekts zu gefährden."},
+  {cat:'plan', sub:'pm', q:"Was zeigt ein Gantt-Diagramm?", a:"Eine Balkendarstellung, die Vorgänge eines Projekts über die Zeitachse zeigt, inklusive Start-/Endzeitpunkten und teilweise Abhängigkeiten."},
+  {cat:'plan', sub:'pm', q:"Was ist ein Meilenstein im Projektmanagement?", a:"Ein bedeutsames, terminiertes Ereignis oder Teilergebnis im Projektverlauf ohne eigene Dauer, das den Fortschritt markiert."},
+  {cat:'plan', sub:'pm', q:"Nenne die klassischen Phasen eines Softwareprojekts.", a:"Initiierung/Anforderungsanalyse, Planung/Entwurf, Umsetzung/Implementierung, Test/Abnahme und Einführung/Betrieb (inkl. Wartung)."},
+  {cat:'plan', sub:'test', q:"Was ist ein Unit-Test?", a:"Ein Test, der eine einzelne, isolierte Programmeinheit (z. B. eine Methode oder Klasse) auf korrektes Verhalten prüft."},
+  {cat:'plan', sub:'test', q:"Was ist ein Integrationstest?", a:"Ein Test, der das Zusammenspiel mehrerer bereits einzeln getesteter Module/Komponenten prüft."},
+  {cat:'plan', sub:'test', q:"Was ist ein Systemtest?", a:"Ein Test des gesamten, integrierten Systems gegen die Gesamtanforderungen, meist in einer produktionsnahen Umgebung."},
+  {cat:'plan', sub:'test', q:"Was ist ein Abnahmetest?", a:"Ein Test, bei dem der Auftraggeber prüft, ob das fertige System die vereinbarten Anforderungen erfüllt und abgenommen werden kann."},
+  {cat:'plan', sub:'test', q:"Was ist der Unterschied zwischen Black-Box- und White-Box-Testing?", a:"Beim Black-Box-Test wird nur das Ein-/Ausgabeverhalten geprüft, ohne die interne Struktur zu kennen. Beim White-Box-Test kennt der Tester den internen Aufbau/Code und testet gezielt Pfade und Strukturen."},
+  {cat:'plan', sub:'test', q:"Was ist die Äquivalenzklassenmethode beim Testen?", a:"Eingabewerte werden in Klassen eingeteilt, die voraussichtlich gleich behandelt werden; es wird angenommen, dass ein Testfall pro Klasse repräsentativ für die gesamte Klasse ist."},
+  {cat:'plan', sub:'test', q:"Was ist die Grenzwertanalyse beim Testen?", a:"Eine Testmethode, die gezielt Werte an den Rändern von Äquivalenzklassen testet (z. B. Minimum, Maximum, direkt darüber/darunter), da dort Fehler besonders häufig auftreten."},
+  {cat:'plan', sub:'recht', q:"Was ist der Unterschied zwischen Werkvertrag und Dienstvertrag?", a:"Beim Werkvertrag (§631 BGB) wird ein konkreter Erfolg/ein Ergebnis geschuldet (z. B. eine fertige Software). Beim Dienstvertrag (§611 BGB) wird nur die Tätigkeit/Arbeitsleistung geschuldet, unabhängig vom Erfolg."},
+  {cat:'plan', sub:'recht', q:"Was regeln Allgemeine Geschäftsbedingungen (AGB)?", a:"Vorformulierte Vertragsbedingungen, die eine Partei der anderen bei Vertragsschluss stellt, um wiederkehrende Geschäfte einheitlich zu regeln — unterliegen einer gesetzlichen Inhaltskontrolle."},
+  {cat:'plan', sub:'recht', q:"Was bedeutet Gewährleistung im Kaufrecht/Werkvertragsrecht?", a:"Die gesetzliche Pflicht des Verkäufers/Werkunternehmers, für Mängel der gelieferten Sache/des Werks einzustehen, z. B. durch Nacherfüllung (Nachbesserung bzw. Nachlieferung), Minderung, Rücktritt oder Schadensersatz."},
+  {cat:'plan', sub:'sicherheit', q:"Was sind die drei klassischen Schutzziele der IT-Sicherheit?", a:"Vertraulichkeit (Confidentiality), Integrität (Integrity) und Verfügbarkeit (Availability) — oft als CIA-Triade bezeichnet."},
+  {cat:'plan', sub:'sicherheit', q:"Was ist der Unterschied zwischen symmetrischer und asymmetrischer Verschlüsselung?", a:"Bei symmetrischer Verschlüsselung wird derselbe Schlüssel zum Ver- und Entschlüsseln verwendet. Bei asymmetrischer Verschlüsselung gibt es ein Schlüsselpaar aus öffentlichem und privatem Schlüssel."},
+  {cat:'plan', sub:'sicherheit', q:"Was ist eine Firewall?", a:"Ein System (Hard- oder Software), das den Datenverkehr zwischen Netzen anhand definierter Regeln überwacht und filtert, um unerwünschten Zugriff zu verhindern."},
+  {cat:'plan', sub:'sicherheit', q:"Was ist ein VPN?", a:"Ein Virtual Private Network stellt eine verschlüsselte Verbindung über ein öffentliches Netz her, sodass Daten sicher wie in einem privaten Netzwerk übertragen werden können."},
+  {cat:'plan', sub:'sicherheit', q:"Was besagt die DSGVO grundsätzlich?", a:"Die Datenschutz-Grundverordnung regelt EU-weit einheitlich den Umgang mit personenbezogenen Daten und verpflichtet Unternehmen u. a. zu Rechtmäßigkeit, Zweckbindung, Datenminimierung und Transparenz bei der Verarbeitung."},
+  {cat:'plan', sub:'sicherheit', q:"Was versteht man unter \"Privacy by Design\"?", a:"Das Prinzip, Datenschutz bereits von Beginn an in die technische Konzeption und Entwicklung von Systemen und Prozessen einzubeziehen, statt ihn nachträglich hinzuzufügen."},
+  {cat:'plan', sub:'lizenz', q:"Was ist der Unterschied zwischen Open-Source- und proprietärer Software?", a:"Open-Source-Software stellt ihren Quellcode offen zur Verfügung und erlaubt meist Nutzung, Veränderung und Weitergabe unter bestimmten Lizenzbedingungen. Proprietäre Software ist closed-source, Rechte liegen beim Hersteller, Nutzung ist meist lizenzpflichtig eingeschränkt."},
+  {cat:'plan', sub:'lizenz', q:"Was ist der Unterschied zwischen Freeware und Shareware?", a:"Freeware ist kostenlos nutzbar, meist ohne Weitergabe des Quellcodes. Shareware darf zeitlich oder funktional eingeschränkt kostenlos getestet werden, für die Vollversion ist danach eine Zahlung fällig."},
+  {cat:'plan', sub:'pm', q:"Was ist eine Stakeholder-Analyse?", a:"Die systematische Identifikation und Bewertung aller Personen/Gruppen, die von einem Projekt betroffen sind oder Einfluss darauf haben, um deren Interessen und Erwartungen zu berücksichtigen."},
+  {cat:'plan', sub:'anforderungen', q:"Was ist ein Lastenheft-Bestandteil \"Muss-Kriterium\" vs. \"Kann-Kriterium\"?", a:"Muss-Kriterien sind zwingend zu erfüllende Anforderungen, ohne die die Lösung nicht akzeptiert wird. Kann-Kriterien sind wünschenswerte, aber nicht zwingende Zusatzanforderungen."},
+  {cat:'plan', sub:'pm', q:"Was ist eine SWOT-Analyse?", a:"Eine Analysemethode, die Stärken (Strengths), Schwächen (Weaknesses), Chancen (Opportunities) und Risiken (Threats) eines Vorhabens oder Unternehmens systematisch gegenüberstellt."},
+  {cat:'plan', sub:'pm', q:"Was ist ein Change-Request im Projektmanagement?", a:"Ein formal gestellter Antrag auf Änderung des Projektumfangs, der Anforderungen, des Zeitplans oder des Budgets nach Projektstart, der bewertet und genehmigt werden muss."},
+  {cat:'plan', sub:'pm', q:"Was bedeutet \"Scope Creep\"?", a:"Die schleichende, unkontrollierte Ausweitung des Projektumfangs ohne entsprechende Anpassung von Zeit, Budget oder Ressourcen."},
+  {cat:'plan', sub:'test', q:"Was ist der Unterschied zwischen Qualitätssicherung und Qualitätsmanagement?", a:"Qualitätssicherung (QS) umfasst konkrete Maßnahmen zur Prüfung/Sicherstellung der Produktqualität (z. B. Tests). Qualitätsmanagement (QM) ist der übergeordnete, organisatorische Rahmen, der Prozesse, Verantwortlichkeiten und kontinuierliche Verbesserung steuert."},
+  {cat:'plan', sub:'test', q:"Was ist der PDCA-Zyklus?", a:"Ein Modell für kontinuierliche Verbesserung mit den Phasen Plan (Planen), Do (Umsetzen), Check (Überprüfen) und Act (Anpassen/Standardisieren)."},
+  // ================= Entwicklung & Umsetzung von Algorithmen =================
+  {cat:'algo', sub:'ds', q:"Was ist der Unterschied zwischen Stack und Queue?", a:"Ein Stack arbeitet nach dem LIFO-Prinzip (Last In, First Out) — das zuletzt eingefügte Element wird zuerst entnommen. Eine Queue arbeitet nach FIFO (First In, First Out) — das zuerst eingefügte Element wird zuerst entnommen."},
+  {cat:'algo', sub:'ds', q:"Was ist eine verkettete Liste (Linked List)?", a:"Eine dynamische Datenstruktur, bei der jedes Element (Knoten) seinen Wert und einen Verweis (Zeiger) auf das nächste Element speichert — im Gegensatz zum Array liegt der Speicher nicht zwingend zusammenhängend vor."},
+  {cat:'algo', sub:'sort', q:"Wie funktioniert Bubble Sort grundsätzlich?", a:"Benachbarte Elemente werden wiederholt paarweise verglichen und bei falscher Reihenfolge vertauscht. Nach jedem Durchlauf \"steigt\" das größte verbliebene Element ans Ende — bis das Array sortiert ist."},
+  {cat:'algo', sub:'rekursion', q:"Was ist Rekursion?", a:"Eine Funktion, die sich selbst aufruft, um ein Problem in kleinere gleichartige Teilprobleme zu zerlegen. Sie benötigt eine Abbruchbedingung (Basisfall), sonst läuft sie unendlich weiter."},
+  {cat:'algo', sub:'sort', q:"Wie funktioniert die binäre Suche und welche Voraussetzung hat sie?", a:"Sie halbiert wiederholt den Suchbereich, indem sie den Mittelwert mit dem Zielwert vergleicht. Voraussetzung: Das Array muss sortiert sein. Laufzeit: O(log n)."},
+  {cat:'algo', sub:'oop', q:"Was bedeutet Kapselung (Encapsulation) in der OOP?", a:"Attribute einer Klasse werden vor direktem Zugriff von außen geschützt (meist private) und nur über definierte Methoden (Getter/Setter) zugänglich gemacht — das schützt die Datenintegrität."},
+  {cat:'algo', sub:'oop', q:"Was ist Vererbung (Inheritance) in der OOP?", a:"Eine Klasse (Unterklasse) übernimmt Attribute und Methoden einer anderen Klasse (Oberklasse) und kann diese erweitern oder überschreiben — fördert Wiederverwendbarkeit."},
+  {cat:'algo', sub:'oop', q:"Was ist Polymorphismus?", a:"Objekte unterschiedlicher Klassen können über dieselbe Methodensignatur angesprochen werden, verhalten sich dabei aber je nach konkreter Klasse unterschiedlich (z. B. durch Methodenüberschreibung)."},
+  {cat:'algo', sub:'oop', q:"Was ist der Unterschied zwischen einer abstrakten Klasse und einem Interface?", a:"Eine abstrakte Klasse kann sowohl implementierte als auch abstrakte Methoden sowie Attribute enthalten und wird über einfache Vererbung genutzt. Ein Interface definiert primär Methodensignaturen (Verträge); eine Klasse kann mehrere Interfaces implementieren. Seit Java 8 dürfen Interfaces zusätzlich default- und static-Methoden mit eigener Implementierung enthalten, Instanzattribute sind aber weiterhin nicht möglich (nur öffentliche, statische, finale Konstanten)."},
+  {cat:'algo', sub:'sql', q:"Was unterscheidet Primärschlüssel und Fremdschlüssel in einer Datenbank?", a:"Der Primärschlüssel identifiziert einen Datensatz eindeutig innerhalb seiner Tabelle. Der Fremdschlüssel verweist auf den Primärschlüssel einer anderen Tabelle und stellt so die Beziehung zwischen Tabellen her."},
+  {cat:'algo', sub:'sql', q:"Was ist der Unterschied zwischen INNER JOIN und LEFT JOIN in SQL?", a:"INNER JOIN liefert nur Datensätze, die in beiden Tabellen eine Übereinstimmung haben. LEFT JOIN liefert zusätzlich alle Datensätze der linken Tabelle, auch wenn es in der rechten keine Übereinstimmung gibt (dann mit NULL-Werten)."},
+  {cat:'algo', sub:'sql', q:"Was fordert die erste Normalform (1NF)?", a:"Jedes Attribut enthält nur atomare (unteilbare) Werte, es gibt keine Wiederholungsgruppen und jede Zeile ist über einen Primärschlüssel eindeutig identifizierbar."},
+  {cat:'algo', sub:'sql', q:"Was fordert die zweite Normalform (2NF)?", a:"Die Tabelle erfüllt die 1NF, und jedes Nicht-Schlüsselattribut ist voll funktional abhängig vom gesamten Primärschlüssel (keine Abhängigkeit von nur einem Teil eines zusammengesetzten Schlüssels)."},
+  {cat:'algo', sub:'sql', q:"Was fordert die dritte Normalform (3NF)?", a:"Die Tabelle erfüllt die 2NF, und es gibt keine transitiven Abhängigkeiten — Nicht-Schlüsselattribute dürfen nicht von anderen Nicht-Schlüsselattributen abhängen, sondern nur vom Primärschlüssel."},
+  {cat:'algo', sub:'sort', q:"Was beschreibt die Big-O-Notation?", a:"Sie beschreibt, wie die Laufzeit oder der Speicherbedarf eines Algorithmus im schlechtesten Fall mit wachsender Eingabegröße n zunimmt, z. B. O(1), O(log n), O(n), O(n²)."},
+  {cat:'algo', sub:'ds', q:"Was ist der Unterschied zwischen einem Array und einer verketteten Liste bezüglich des Zugriffs?", a:"Ein Array erlaubt direkten Zugriff über einen Index in O(1), da die Elemente zusammenhängend gespeichert sind. Bei einer verketteten Liste muss man ab dem Anfang sequenziell durchlaufen, Zugriff ist O(n) — dafür sind Einfügen/Löschen oft günstiger."},
+  {cat:'algo', sub:'sql', q:"Wozu dient das SQL-Statement GROUP BY?", a:"Es gruppiert Zeilen mit gleichen Werten in bestimmten Spalten zusammen, meist in Kombination mit Aggregatfunktionen wie COUNT(), SUM() oder AVG(), um pro Gruppe ein Ergebnis zu berechnen."},
+  {cat:'algo', sub:'ds', q:"Was ist ein Array?", a:"Eine Datenstruktur fester Größe, die Elemente desselben Typs zusammenhängend im Speicher ablegt und über einen Index direkt zugreifbar macht."},
+  {cat:'algo', sub:'ds', q:"Was ist ein binärer Baum?", a:"Eine Baumstruktur, bei der jeder Knoten maximal zwei Kindknoten (linkes und rechtes Kind) besitzt."},
+  {cat:'algo', sub:'ds', q:"Was ist ein binärer Suchbaum?", a:"Ein binärer Baum, bei dem für jeden Knoten gilt: alle Werte im linken Teilbaum sind kleiner, alle im rechten Teilbaum größer als der Knotenwert. Bei einem ausgeglichenen Baum ermöglicht das Suche in O(log n); im ungünstigsten Fall, z. B. bei einem entarteten (listenartigen) Baum, verschlechtert sich die Laufzeit auf O(n)."},
+  {cat:'algo', sub:'ds', q:"Was ist eine Hashtabelle?", a:"Eine Datenstruktur, die Schlüssel über eine Hashfunktion auf Speicherplätze abbildet, um im Idealfall Zugriff, Einfügen und Löschen in O(1) zu ermöglichen."},
+  {cat:'algo', sub:'ds', q:"Was ist eine Kollision in einer Hashtabelle und wie kann sie behandelt werden?", a:"Eine Kollision entsteht, wenn zwei Schlüssel auf denselben Speicherplatz abgebildet werden. Behandlung z. B. durch Verkettung (Chaining) oder offene Adressierung."},
+  {cat:'algo', sub:'ds', q:"Was ist ein Graph in der Informatik?", a:"Eine Struktur aus Knoten (Nodes) und Kanten (Edges), die Beziehungen zwischen Objekten darstellt — kann gerichtet oder ungerichtet, gewichtet oder ungewichtet sein."},
+  {cat:'algo', sub:'sort', q:"Wie funktioniert Selection Sort?", a:"In jedem Durchlauf wird das kleinste (oder größte) Element im unsortierten Bereich gesucht und mit dem ersten unsortierten Element vertauscht."},
+  {cat:'algo', sub:'sort', q:"Wie funktioniert Insertion Sort?", a:"Das Array wird schrittweise aufgebaut, indem jedes Element an der richtigen Position im bereits sortierten Teil eingefügt wird."},
+  {cat:'algo', sub:'sort', q:"Wie funktioniert Quicksort grundsätzlich?", a:"Ein Pivot-Element wird gewählt, das Array wird in kleinere/größere Elemente als den Pivot partitioniert, und die Teilarrays werden rekursiv sortiert (Divide-and-Conquer)."},
+  {cat:'algo', sub:'sort', q:"Wie funktioniert Mergesort grundsätzlich?", a:"Das Array wird rekursiv in Hälften geteilt, bis einzelne Elemente übrig sind, die dann paarweise sortiert wieder zusammengeführt (gemergt) werden — Laufzeit O(n log n)."},
+  {cat:'algo', sub:'sort', q:"Welche Zeitkomplexität hat die lineare Suche im schlechtesten Fall?", a:"O(n), da im schlimmsten Fall jedes Element geprüft werden muss."},
+  {cat:'algo', sub:'rekursion', q:"Was ist der Unterschied zwischen Rekursion und Iteration?", a:"Rekursion löst ein Problem durch Selbstaufrufe der Funktion, Iteration durch Schleifen. Rekursion kann eleganter sein, benötigt aber mehr Speicher (Aufrufstapel); Iteration ist meist ressourcenschonender."},
+  {cat:'algo', sub:'rekursion', q:"Was ist ein Stack Overflow bei Rekursion?", a:"Ein Fehler, der auftritt, wenn zu viele rekursive Aufrufe den Aufrufstapel (Call Stack) überlaufen lassen, meist wegen fehlender oder falscher Abbruchbedingung."},
+  {cat:'algo', sub:'oop', q:"Was ist der Konstruktor einer Klasse?", a:"Eine spezielle Methode, die beim Erzeugen eines neuen Objekts automatisch aufgerufen wird, um dessen Attribute zu initialisieren."},
+  {cat:'algo', sub:'oop', q:"Was ist der Unterschied zwischen einer Klasse und einem Objekt?", a:"Eine Klasse ist die Bauplan-/Vorlagendefinition mit Attributen und Methoden. Ein Objekt ist eine konkrete Instanz dieser Klasse mit eigenen Attributwerten."},
+  {cat:'algo', sub:'oop', q:"Was ist eine statische Methode/ein statisches Attribut in der OOP?", a:"Ein Element, das zur Klasse selbst gehört und nicht an eine einzelne Instanz gebunden ist — es existiert nur einmal, unabhängig davon, wie viele Objekte erzeugt werden."},
+  {cat:'algo', sub:'oop', q:"Was ist der Unterschied zwischen Überladen (Overloading) und Überschreiben (Overriding)?", a:"Überladen bedeutet, mehrere Methoden mit gleichem Namen, aber unterschiedlicher Parameterliste in derselben Klasse zu definieren. Überschreiben bedeutet, eine geerbte Methode in einer Unterklasse mit gleicher Signatur neu zu implementieren."},
+  {cat:'algo', sub:'oop', q:"Was ist Abstraktion in der OOP?", a:"Das Prinzip, nur die für den jeweiligen Kontext wesentlichen Eigenschaften/Verhaltensweisen eines Objekts abzubilden und unwichtige Details auszublenden."},
+  {cat:'algo', sub:'pattern', q:"Was ist das Singleton-Entwurfsmuster?", a:"Ein Entwurfsmuster, das sicherstellt, dass von einer Klasse zur Laufzeit nur genau eine Instanz existiert, und einen globalen Zugriffspunkt darauf bereitstellt."},
+  {cat:'algo', sub:'pattern', q:"Was ist das Observer-Entwurfsmuster?", a:"Ein Entwurfsmuster, bei dem sich Beobachter (Observer) bei einem Subjekt registrieren und automatisch benachrichtigt werden, wenn sich dessen Zustand ändert."},
+  {cat:'algo', sub:'pattern', q:"Was ist das Factory-Entwurfsmuster?", a:"Ein Entwurfsmuster, das die Erzeugung von Objekten über eine zentrale Methode/Klasse kapselt, statt Objekte direkt mit \"new\" zu erzeugen — erhöht Flexibilität und Austauschbarkeit."},
+  {cat:'algo', sub:'pattern', q:"Was beschreibt das MVC-Architekturmuster?", a:"Model-View-Controller trennt eine Anwendung in Datenmodell (Model), Darstellung (View) und Steuerungslogik (Controller), um Zuständigkeiten zu entkoppeln und Wartbarkeit zu erhöhen."},
+  {cat:'algo', sub:'pattern', q:"Was ist eine Schichtenarchitektur (Layered Architecture)?", a:"Eine Softwarearchitektur, die eine Anwendung in aufeinander aufbauende Schichten (z. B. Präsentation, Logik, Datenzugriff) unterteilt, wobei jede Schicht nur mit den angrenzenden kommuniziert."},
+  {cat:'algo', sub:'pattern', q:"Was ist ein Client-Server-Modell?", a:"Ein Architekturmodell, bei dem Clients Anfragen an einen zentralen Server stellen, der Ressourcen/Dienste bereitstellt und die Anfragen bearbeitet."},
+  {cat:'algo', sub:'pattern', q:"Was ist eine REST-API?", a:"Eine Programmierschnittstelle, die dem REST-Architekturstil folgt und über HTTP-Methoden (GET, POST, PUT, DELETE) zustandslos auf Ressourcen zugreift, die über URLs identifiziert werden."},
+  {cat:'algo', sub:'pattern', q:"Was ist der Unterschied zwischen JSON und XML?", a:"Beides sind Datenformate zum Datenaustausch. JSON ist kompakter und einfacher lesbar (Schlüssel-Wert-Paare), XML ist ausführlicher mit Tags und erlaubt z. B. Attribute und Validierung über Schemas (XSD)."},
+  {cat:'algo', sub:'sql', q:"Was bedeutet ACID bei Datenbanktransaktionen?", a:"Atomicity (Alles-oder-nichts), Consistency (Konsistenz bleibt erhalten), Isolation (Transaktionen beeinflussen sich nicht gegenseitig) und Durability (Ergebnisse bleiben nach Abschluss dauerhaft erhalten)."},
+  {cat:'algo', sub:'sql', q:"Was ist ein Datenbankindex und wozu dient er?", a:"Eine zusätzliche Datenstruktur, die den schnellen Zugriff auf Datensätze anhand bestimmter Spalten ermöglicht, ähnlich einem Buchregister — beschleunigt Lesezugriffe, verlangsamt aber Schreibzugriffe."},
+  {cat:'algo', sub:'sql', q:"Was macht das SQL-Statement HAVING im Unterschied zu WHERE?", a:"WHERE filtert einzelne Zeilen vor der Gruppierung, HAVING filtert Gruppen (z. B. Ergebnisse von Aggregatfunktionen) nach der Ausführung von GROUP BY."},
+  {cat:'algo', sub:'sql', q:"Was macht ein RIGHT JOIN in SQL?", a:"Er liefert alle Datensätze der rechten Tabelle sowie die übereinstimmenden Datensätze der linken Tabelle; gibt es keine Übereinstimmung, werden NULL-Werte für die linke Tabelle eingesetzt."},
+  {cat:'algo', sub:'sql', q:"Was ist eine Subquery (Unterabfrage) in SQL?", a:"Eine SQL-Abfrage, die innerhalb einer anderen Abfrage verschachtelt ist, z. B. in der WHERE- oder FROM-Klausel, um Zwischenergebnisse weiterzuverarbeiten."},
+  {cat:'algo', sub:'sql', q:"Was ist der Unterschied zwischen DDL und DML in SQL?", a:"DDL (Data Definition Language, z. B. CREATE, ALTER, DROP) definiert die Struktur der Datenbank. DML (Data Manipulation Language, z. B. SELECT, INSERT, UPDATE, DELETE) bearbeitet die Daten selbst."},
+  {cat:'algo', sub:'sql', q:"Was bewirkt das SQL-Statement DELETE im Vergleich zu TRUNCATE?", a:"DELETE löscht (optional gefilterte) Zeilen einzeln und protokolliert sie im Transaktionslog, ist rückgängig machbar. TRUNCATE entfernt alle Zeilen einer Tabelle auf einmal, meist schneller, aber nicht zeilenweise protokolliert."},
+  {cat:'algo', sub:'sql', q:"Was ist ein zusammengesetzter Schlüssel (Composite Key)?", a:"Ein Primärschlüssel, der aus mehreren Spalten besteht, die zusammen einen Datensatz eindeutig identifizieren."},
+  {cat:'algo', sub:'sql', q:"Was ist die Boyce-Codd-Normalform (BCNF)?", a:"Eine Verschärfung der 3NF: Für jede funktionale Abhängigkeit muss die linke Seite ein Superschlüssel sein — beseitigt bestimmte Anomalien, die die 3NF noch zulässt."},
+  {cat:'algo', sub:'sql', q:"Was ist eine Anomalie in einer nicht normalisierten Datenbank?", a:"Unerwünschte Effekte wie Einfüge-, Änderungs- oder Löschanomalien, die durch redundante Datenspeicherung entstehen können und durch Normalisierung vermieden werden."},
+  {cat:'algo', sub:'sql', q:"Was ist der Unterschied zwischen einem Primärschlüssel und einem Unique-Constraint?", a:"Ein Primärschlüssel identifiziert einen Datensatz eindeutig und darf nicht NULL sein; pro Tabelle gibt es nur einen. Ein Unique-Constraint erzwingt ebenfalls Eindeutigkeit, erlaubt aber NULL-Werte und kann mehrfach pro Tabelle vergeben werden."},
+  {cat:'algo', sub:'netz', q:"Was ist das OSI-Referenzmodell?", a:"Ein 7-Schichten-Modell zur Beschreibung der Kommunikation in Netzwerken, von der physikalischen Übertragung (Schicht 1) bis zur Anwendung (Schicht 7)."},
+  {cat:'algo', sub:'netz', q:"Auf welcher OSI-Schicht arbeitet ein Switch, auf welcher ein Router?", a:"Ein (klassischer) Switch arbeitet auf Schicht 2 (Sicherungsschicht, MAC-Adressen), ein Router auf Schicht 3 (Vermittlungsschicht, IP-Adressen)."},
+  {cat:'algo', sub:'netz', q:"Was ist der Unterschied zwischen TCP und UDP?", a:"TCP ist verbindungsorientiert, stellt eine zuverlässige, geordnete Übertragung mit Fehlerkorrektur sicher. UDP ist verbindungslos, schneller, aber ohne Garantie für Zustellung oder Reihenfolge."},
+  {cat:'algo', sub:'netz', q:"Was ist eine IP-Adresse?", a:"Eine eindeutige Adresse, die ein Gerät in einem Netzwerk identifiziert und die Kommunikation über das Internetprotokoll ermöglicht (z. B. IPv4 oder IPv6)."},
+  {cat:'algo', sub:'netz', q:"Was macht eine Subnetzmaske?", a:"Sie legt fest, welcher Teil einer IP-Adresse das Netzwerk und welcher Teil das einzelne Gerät (Host) innerhalb dieses Netzwerks bezeichnet."},
+  {cat:'algo', sub:'netz', q:"Was macht ein DNS-Server?", a:"Er übersetzt menschenlesbare Domainnamen (z. B. www.example.com) in die zugehörigen IP-Adressen."},
+  {cat:'algo', sub:'netz', q:"Was ist der Unterschied zwischen HTTP und HTTPS?", a:"HTTPS ist die verschlüsselte Variante von HTTP (mittels TLS/SSL) und schützt die Datenübertragung zwischen Client und Server vor Abhören und Manipulation."},
+  {cat:'algo', sub:'netz', q:"Was ist ein Port in der Netzwerkkommunikation?", a:"Eine logische Adresse (0–65535), über die ein bestimmter Dienst/Prozess auf einem Gerät erreichbar ist, z. B. Port 80 für HTTP oder 443 für HTTPS."},
+  {cat:'algo', sub:'rekursion', q:"Was ist der Unterschied zwischen Binär- und Hexadezimalsystem?", a:"Das Binärsystem nutzt die Basis 2 (Ziffern 0/1), das Hexadezimalsystem die Basis 16 (Ziffern 0–9, A–F). Hexadezimalzahlen werden oft genutzt, um Binärzahlen kompakter darzustellen (4 Bit = 1 Hex-Ziffer)."},
+  {cat:'algo', sub:'rekursion', q:"Wie wird eine negative Zahl im Zweierkomplement dargestellt?", a:"Man invertiert alle Bits der positiven Binärdarstellung und addiert 1 — dadurch lassen sich Addition/Subtraktion einheitlich mit demselben Rechenwerk durchführen."},
+  {cat:'algo', sub:'rekursion', q:"Was ist der Unterschied zwischen einer Exception und einem Syntaxfehler?", a:"Ein Syntaxfehler verletzt die Grammatikregeln der Sprache und verhindert die Kompilierung/Ausführung. Eine Exception ist ein Laufzeitfehler, der während der Programmausführung auftritt und abgefangen (try-catch) werden kann."},
+  {cat:'algo', sub:'rekursion', q:"Wozu dient ein try-catch-Block?", a:"Um Programmcode, bei dem ein Laufzeitfehler auftreten könnte, gezielt abzusichern und im Fehlerfall (catch) eine definierte Behandlung statt eines Programmabsturzes auszuführen."},
+  {cat:'algo', sub:'praxis', q:"Was ist Test-Driven Development (TDD)?", a:"Eine Entwicklungsmethode, bei der zuerst ein (fehlschlagender) Test geschrieben wird, dann die minimale Implementierung, die den Test besteht, und anschließend der Code refaktorisiert wird."},
+  {cat:'algo', sub:'praxis', q:"Was macht der Git-Befehl \"commit\"?", a:"Er speichert die aktuell im Staging-Bereich vorgemerkten Änderungen dauerhaft als neuen Versionsstand (Snapshot) im lokalen Repository."},
+  {cat:'algo', sub:'praxis', q:"Was ist ein Branch in Git?", a:"Ein unabhängiger Entwicklungsstrang innerhalb eines Repositories, der parallele Arbeit ermöglicht, ohne den Hauptzweig (z. B. main) direkt zu verändern."},
+  {cat:'algo', sub:'praxis', q:"Was passiert beim Git-Befehl \"merge\"?", a:"Änderungen aus einem Branch werden mit einem anderen Branch zusammengeführt, wobei Git versucht, die Änderungen automatisch zu kombinieren."},
+  {cat:'algo', sub:'praxis', q:"Was ist ein Merge-Konflikt in Git?", a:"Er tritt auf, wenn dieselbe Stelle einer Datei in zwei zusammenzuführenden Branches unterschiedlich verändert wurde und Git die Änderungen nicht automatisch vereinen kann — manuelle Auflösung ist nötig."},
+  {cat:'algo', sub:'praxis', q:"Was ist eine Pull Request (bzw. Merge Request)?", a:"Eine Anfrage, Änderungen aus einem Branch in einen anderen (z. B. den Hauptzweig) zu übernehmen, meist verbunden mit Code-Review durch andere Teammitglieder vor der Zusammenführung."},
+  {cat:'algo', sub:'praxis', q:"Was ist der Unterschied zwischen Kompilierung und Interpretation?", a:"Bei der Kompilierung wird der Quellcode vor der Ausführung vollständig in Maschinencode übersetzt. Bei der Interpretation wird der Code zur Laufzeit Zeile für Zeile gelesen und direkt ausgeführt."},
+  {cat:'algo', sub:'oop', q:"Was ist ein Interface in der objektorientierten Programmierung im Vergleich zu einer Klasse?", a:"Ein Interface definiert einen Vertrag aus Methodensignaturen, traditionell ohne eigene Implementierung (seit Java 8 sind jedoch default- und static-Methoden mit Implementierung möglich); eine Klasse kann diesen Vertrag durch \"implements\" einhalten und muss alle nicht bereits implementierten Methoden konkret umsetzen."},
+  {cat:'algo', sub:'oop', q:"Was versteht man unter \"Clean Code\"?", a:"Quellcode, der klar strukturiert, verständlich benannt, gut wartbar und möglichst einfach ist — u. a. durch aussagekräftige Bezeichner, kleine Funktionen und Vermeidung unnötiger Komplexität."},
+  {cat:'algo', sub:'ds', q:"Was ist der Unterschied zwischen einer einfach und einer doppelt verketteten Liste?", a:"Bei einer einfach verketteten Liste verweist jeder Knoten nur auf den nächsten Knoten. Bei einer doppelt verketteten Liste verweist jeder Knoten zusätzlich auf den vorherigen Knoten, was Navigation in beide Richtungen ermöglicht."},
+  // ================= Wirtschafts- und Sozialkunde =================
+  {cat:'wiso', sub:'tarif', q:"Wer schließt einen Tarifvertrag ab?", a:"Ein Tarifvertrag wird zwischen einer Gewerkschaft (Arbeitnehmerseite) und einem einzelnen Arbeitgeber oder einem Arbeitgeberverband (Arbeitgeberseite) geschlossen."},
+  {cat:'wiso', sub:'arbeitsrecht', q:"Was regelt das Kündigungsschutzgesetz (KSchG) und für wen gilt es?", a:"Es schützt Arbeitnehmer vor sozial ungerechtfertigten Kündigungen. Es gilt in Betrieben mit i. d. R. mehr als 10 Beschäftigten, wenn das Arbeitsverhältnis länger als 6 Monate besteht."},
+  {cat:'wiso', sub:'steuern', q:"Nenne die fünf Zweige der gesetzlichen Sozialversicherung in Deutschland.", a:"Kranken-, Renten-, Arbeitslosen-, Pflege- und Unfallversicherung."},
+  {cat:'wiso', sub:'arbeitsrecht', q:"Was ist die maximale gesetzliche tägliche Arbeitszeit laut Arbeitszeitgesetz?", a:"Grundsätzlich 8 Stunden pro Werktag, verlängerbar auf bis zu 10 Stunden, wenn im Durchschnitt von 6 Kalendermonaten bzw. 24 Wochen 8 Stunden pro Werktag nicht überschritten werden."},
+  {cat:'wiso', sub:'arbeitsrecht', q:"Wozu dient das Allgemeine Gleichbehandlungsgesetz (AGG)?", a:"Es soll Benachteiligungen aus Gründen wie Rasse/ethnischer Herkunft, Geschlecht, Religion, Behinderung, Alter oder sexueller Identität verhindern oder beseitigen — u. a. im Arbeitsleben."},
+  {cat:'wiso', sub:'arbeitsrecht', q:"Nenne zwei zentrale Mitbestimmungsrechte des Betriebsrats.", a:"Z. B. bei der Gestaltung von Arbeitszeit (§87 BetrVG) und bei personellen Einzelmaßnahmen wie Einstellungen, Versetzungen oder Kündigungen — hier hat der Betriebsrat Mitspracherechte nach dem Betriebsverfassungsgesetz."},
+  {cat:'wiso', sub:'arbeitsrecht', q:"Was regelt das Jugendarbeitsschutzgesetz (JArbSchG)?", a:"Es schützt Kinder und Jugendliche (unter 18 Jahren) am Arbeitsplatz, z. B. durch Begrenzung der Arbeitszeit, Verbot von Nacht-/Akkordarbeit und Pflicht zu ausreichenden Pausen und Ruhezeiten."},
+  {cat:'wiso', sub:'wirtschaft', q:"Was zeigt der einfache Wirtschaftskreislauf?", a:"Den Güter- und Geldfluss zwischen den zwei Polen Haushalte (bieten Produktionsfaktoren an, konsumieren Güter) und Unternehmen (produzieren Güter, zahlen Löhne) — jeweils in entgegengesetzter Richtung."},
+  {cat:'wiso', sub:'wirtschaft', q:"Was versteht man unter Inflation?", a:"Einen anhaltenden Anstieg des allgemeinen Preisniveaus, wodurch die Kaufkraft des Geldes sinkt."},
+  {cat:'wiso', sub:'unternehmen', q:"Was ist der zentrale Unterschied zwischen GmbH und AG bei der Haftung?", a:"Bei beiden Rechtsformen haftet grundsätzlich nur das Gesellschaftsvermögen (keine private Haftung der Gesellschafter/Aktionäre). Die GmbH hat Stammkapital (mind. 25.000 €), die AG Grundkapital (mind. 50.000 €), das in Aktien zerlegt ist."},
+  {cat:'wiso', sub:'unternehmen', q:"Was sind zentrale Aufgaben der IHK (Industrie- und Handelskammer)?", a:"U. a. die Überwachung der Berufsausbildung, Organisation von Prüfungen, Interessenvertretung der Wirtschaft und Beratung von Unternehmen."},
+  {cat:'wiso', sub:'ausbildung', q:"Wie lang ist die gesetzliche Probezeit im Berufsausbildungsverhältnis maximal?", a:"Mindestens 1 Monat und höchstens 4 Monate (§20 BBiG). Während der Probezeit kann das Ausbildungsverhältnis jederzeit ohne Einhaltung einer Frist gekündigt werden."},
+  {cat:'wiso', sub:'arbeitsrecht', q:"Welche Angaben muss ein Ausbildungsvertrag mindestens enthalten?", a:"U. a. Ausbildungsberuf und -ziel, Beginn und Dauer, Ausbildungsstätte(n), tägliche Arbeitszeit, Dauer der Probezeit, Vergütungshöhe und -zahlungsweise sowie Urlaubsdauer und Kündigungsvoraussetzungen."},
+  {cat:'wiso', sub:'arbeitsrecht', q:"Welche gesetzliche Kündigungsfrist gilt nach der Probezeit für Arbeitnehmer laut BGB (Grundregel)?", a:"Die gesetzliche Grundkündigungsfrist beträgt 4 Wochen zum 15. oder zum Ende eines Kalendermonats (§622 BGB), sofern nicht Tarifvertrag oder Arbeitsvertrag längere Fristen vorsehen."},
+  {cat:'wiso', sub:'wirtschaft', q:"Was regelt Angebot und Nachfrage auf einem freien Markt?", a:"Der Marktpreis (Gleichgewichtspreis) bildet sich dort, wo die angebotene Menge der nachgefragten Menge entspricht. Steigt die Nachfrage bei gleichem Angebot, steigt tendenziell der Preis — und umgekehrt."},
+  {cat:'wiso', sub:'tarif', q:"Was ist der Unterschied zwischen Betriebsrat und Personalrat?", a:"Der Betriebsrat vertritt Arbeitnehmerinteressen in privatwirtschaftlichen Betrieben (Grundlage: Betriebsverfassungsgesetz). Der Personalrat übernimmt diese Funktion im öffentlichen Dienst (Grundlage: Personalvertretungsgesetze)."},
+  {cat:'wiso', sub:'arbeitsrecht', q:"Was ist der Unterschied zwischen einer ordentlichen und einer außerordentlichen Kündigung?", a:"Die ordentliche Kündigung erfolgt unter Einhaltung der gesetzlichen/vertraglichen Kündigungsfrist. Die außerordentliche (fristlose) Kündigung beendet das Arbeitsverhältnis sofort, erfordert aber einen wichtigen Grund (§626 BGB)."},
+  {cat:'wiso', sub:'arbeitsrecht', q:"Was ist eine Änderungskündigung?", a:"Eine Kündigung, die mit dem Angebot verbunden ist, das Arbeitsverhältnis zu geänderten Bedingungen fortzusetzen (z. B. anderes Gehalt oder andere Tätigkeit)."},
+  {cat:'wiso', sub:'arbeitsrecht', q:"Wozu dient eine Abmahnung?", a:"Sie weist den Arbeitnehmer auf ein konkretes Fehlverhalten hin, fordert dessen Unterlassung und kündigt im Wiederholungsfall arbeitsrechtliche Konsequenzen (bis zur Kündigung) an — oft Voraussetzung für eine verhaltensbedingte Kündigung."},
+  {cat:'wiso', sub:'arbeitsrecht', q:"Was ist ein qualifiziertes Arbeitszeugnis?", a:"Ein Zeugnis, das neben Art und Dauer der Tätigkeit auch Leistung und Verhalten des Arbeitnehmers bewertet — im Gegensatz zum einfachen Zeugnis, das nur Tätigkeit und Dauer nennt."},
+  {cat:'wiso', sub:'arbeitsrecht', q:"Was regelt das Mutterschutzgesetz?", a:"Es schützt schwangere und stillende Arbeitnehmerinnen, u. a. durch Beschäftigungsverbote, Kündigungsschutz und besondere Arbeitszeitregelungen."},
+  {cat:'wiso', sub:'arbeitsrecht', q:"Was ist Elternzeit?", a:"Ein gesetzlicher Anspruch von Arbeitnehmern auf unbezahlte Freistellung von der Arbeit zur Betreuung eines Kindes, bei gleichzeitigem Kündigungsschutz und Rückkehrrecht auf den Arbeitsplatz."},
+  {cat:'wiso', sub:'arbeitsrecht', q:"Wie hoch ist der gesetzliche Mindesturlaub laut Bundesurlaubsgesetz (BUrlG)?", a:"Mindestens 24 Werktage pro Jahr bei einer 6-Tage-Woche (entspricht 20 Arbeitstagen bei einer 5-Tage-Woche)."},
+  {cat:'wiso', sub:'ausbildung', q:"Was regelt das Berufsbildungsgesetz (BBiG) grundsätzlich?", a:"Es bildet die rechtliche Grundlage der beruflichen Ausbildung in Deutschland, u. a. Ausbildungsvertrag, Pflichten von Ausbildenden und Auszubildenden, Prüfungen und Ausbildungsordnungen."},
+  {cat:'wiso', sub:'ausbildung', q:"Was ist ein Ausbildungsrahmenplan?", a:"Ein Bestandteil der Ausbildungsordnung, der zeitlich und sachlich gegliedert vorgibt, welche Fertigkeiten, Kenntnisse und Fähigkeiten während der Ausbildung vermittelt werden sollen."},
+  {cat:'wiso', sub:'ausbildung', q:"Wozu dient das Berichtsheft (Ausbildungsnachweis)?", a:"Es dokumentiert den Verlauf der Ausbildung, die vermittelten Inhalte und Tätigkeiten und ist Voraussetzung für die Zulassung zur Abschlussprüfung."},
+  {cat:'wiso', sub:'ausbildung', q:"Was ist die Jugend- und Auszubildendenvertretung (JAV)?", a:"Eine gewählte Interessenvertretung der jugendlichen Beschäftigten und Auszubildenden im Betrieb, die u. a. deren Belange gegenüber dem Betriebsrat und dem Arbeitgeber vertritt."},
+  {cat:'wiso', sub:'arbeitsrecht', q:"Was passiert, wenn ein Auszubildender nach der Abschlussprüfung nicht ausdrücklich übernommen, aber weiterbeschäftigt wird?", a:"Nach §24 BBiG entsteht dann automatisch ein unbefristetes Arbeitsverhältnis, wenn der Auszubildende im Anschluss an die Ausbildung ohne ausdrückliche Vereinbarung weiterbeschäftigt wird."},
+  {cat:'wiso', sub:'tarif', q:"Was versteht man unter Tarifautonomie?", a:"Das verfassungsrechtlich geschützte Recht der Tarifparteien (Gewerkschaften und Arbeitgeber(-verbände)), Löhne und Arbeitsbedingungen eigenständig und ohne staatliche Einmischung auszuhandeln."},
+  {cat:'wiso', sub:'tarif', q:"Was ist der Unterschied zwischen Flächentarifvertrag und Firmentarifvertrag (Haustarifvertrag)?", a:"Ein Flächentarifvertrag gilt für eine ganze Branche/Region und wird zwischen Gewerkschaft und Arbeitgeberverband geschlossen. Ein Firmentarifvertrag gilt nur für ein einzelnes Unternehmen und wird direkt zwischen Gewerkschaft und diesem Arbeitgeber vereinbart."},
+  {cat:'wiso', sub:'tarif', q:"Was bedeutet Tarifbindung?", a:"Ein Arbeitsverhältnis unterliegt einem Tarifvertrag, wenn beide Parteien (oder der Arbeitgeber durch Verbandsmitgliedschaft) tarifgebunden sind oder der Tarifvertrag durch Allgemeinverbindlicherklärung gilt."},
+  {cat:'wiso', sub:'tarif', q:"Was ist das Streikrecht und wo ist es verankert?", a:"Das Recht der Gewerkschaften, zur Durchsetzung tariflicher Forderungen zur Arbeitsniederlegung aufzurufen; es leitet sich aus der grundgesetzlich geschützten Koalitionsfreiheit (Art. 9 Abs. 3 GG) ab."},
+  {cat:'wiso', sub:'tarif', q:"Was ist eine Aussperrung?", a:"Eine Arbeitskampfmaßnahme der Arbeitgeberseite, bei der Arbeitnehmer vorübergehend vom Betrieb ausgeschlossen und von der Arbeit sowie der Lohnzahlung freigestellt werden, meist als Reaktion auf einen Streik."},
+  {cat:'wiso', sub:'tarif', q:"Wie wird der Betriebsrat gewählt?", a:"Er wird von den wahlberechtigten Arbeitnehmern des Betriebs in geheimer und unmittelbarer Wahl für eine Amtszeit von in der Regel 4 Jahren gewählt."},
+  {cat:'wiso', sub:'tarif', q:"Was sind soziale Angelegenheiten, bei denen der Betriebsrat zwingend mitbestimmen muss?", a:"Z. B. Beginn und Ende der täglichen Arbeitszeit, Pausenregelungen, Urlaubsgrundsätze, Überstunden sowie Fragen der betrieblichen Ordnung (§87 BetrVG)."},
+  {cat:'wiso', sub:'tarif', q:"Was ist ein Wirtschaftsausschuss?", a:"Ein Gremium in Unternehmen mit in der Regel mehr als 100 Arbeitnehmern, das über wirtschaftliche Angelegenheiten informiert wird und diese mit der Unternehmensleitung berät."},
+  {cat:'wiso', sub:'unternehmen', q:"Was ist ein Einzelunternehmen?", a:"Eine Unternehmensform mit nur einem Inhaber, der das Unternehmen allein führt und mit seinem gesamten Privatvermögen unbeschränkt haftet."},
+  {cat:'wiso', sub:'unternehmen', q:"Was ist eine GbR (Gesellschaft bürgerlichen Rechts)?", a:"Der einfachste Zusammenschluss mehrerer Personen zu einer Personengesellschaft ohne besondere Formvorschriften; alle Gesellschafter haften unbeschränkt und gesamtschuldnerisch, auch mit ihrem Privatvermögen."},
+  {cat:'wiso', sub:'unternehmen', q:"Was unterscheidet eine OHG von einer KG?", a:"Bei der OHG (Offene Handelsgesellschaft) haften alle Gesellschafter unbeschränkt. Bei der KG (Kommanditgesellschaft) gibt es mindestens einen unbeschränkt haftenden Komplementär und mindestens einen nur beschränkt (mit seiner Einlage) haftenden Kommanditisten."},
+  {cat:'wiso', sub:'unternehmen', q:"Was ist eine UG (haftungsbeschränkt)?", a:"Eine \"kleine GmbH\", die bereits mit einem Stammkapital ab 1 € gegründet werden kann, bei der die Haftung wie bei der GmbH auf das Gesellschaftsvermögen beschränkt ist, mit Pflicht zur Rücklagenbildung bis zum Erreichen des GmbH-Mindestkapitals."},
+  {cat:'wiso', sub:'wirtschaft', q:"Was ist eine Marktform \"Monopol\"?", a:"Eine Marktsituation, in der es nur einen einzigen Anbieter für ein Gut oder eine Dienstleistung gibt, der dadurch großen Einfluss auf den Preis hat."},
+  {cat:'wiso', sub:'wirtschaft', q:"Was ist eine Marktform \"Oligopol\"?", a:"Eine Marktsituation, in der wenige große Anbieter den Markt dominieren und sich gegenseitig in ihren Entscheidungen (z. B. Preis) beeinflussen."},
+  {cat:'wiso', sub:'wirtschaft', q:"Was ist ein Polypol?", a:"Eine Marktform mit vielen Anbietern und vielen Nachfragern, bei der kein einzelner Marktteilnehmer allein den Preis wesentlich beeinflussen kann (z. B. Modell des vollkommenen Marktes)."},
+  {cat:'wiso', sub:'steuern', q:"Was ist die Umsatzsteuer und wer trägt sie wirtschaftlich?", a:"Eine indirekte Steuer auf den Verkauf von Waren und Dienstleistungen, die vom Unternehmen an den Staat abgeführt, aber wirtschaftlich letztlich vom Endverbraucher getragen wird."},
+  {cat:'wiso', sub:'steuern', q:"Was ist der Unterschied zwischen direkten und indirekten Steuern?", a:"Bei direkten Steuern (z. B. Einkommensteuer) fallen Steuerschuldner und wirtschaftlich Belasteter zusammen. Bei indirekten Steuern (z. B. Umsatzsteuer) führt ein anderer die Steuer ab, als sie wirtschaftlich trägt."},
+  {cat:'wiso', sub:'steuern', q:"Was besteuert die Gewerbesteuer?", a:"Sie besteuert den Ertrag von Gewerbebetrieben und wird von den Gemeinden erhoben, die auch den Hebesatz festlegen."},
+  {cat:'wiso', sub:'wirtschaft', q:"Was ist ein Konjunkturzyklus?", a:"Die wiederkehrende Abfolge von Aufschwung, Boom (Hochkonjunktur), Abschwung und Rezession/Depression in der gesamtwirtschaftlichen Entwicklung."},
+  {cat:'wiso', sub:'wirtschaft', q:"Was misst das Bruttoinlandsprodukt (BIP)?", a:"Den Gesamtwert aller im Inland innerhalb eines Zeitraums (meist eines Jahres) hergestellten Waren und Dienstleistungen — ein zentraler Indikator für die wirtschaftliche Leistung eines Landes."},
+  {cat:'wiso', sub:'wirtschaft', q:"Was ist der Unterschied zwischen Inflation und Deflation?", a:"Inflation beschreibt einen anhaltenden Anstieg des allgemeinen Preisniveaus (Kaufkraftverlust), Deflation einen anhaltenden Rückgang des Preisniveaus."},
+  {cat:'wiso', sub:'wirtschaft', q:"Nenne zwei Arten von Arbeitslosigkeit.", a:"Z. B. konjunkturelle Arbeitslosigkeit (durch wirtschaftliche Abschwungphasen), strukturelle Arbeitslosigkeit (durch Wandel von Wirtschaftsstrukturen) und friktionelle Arbeitslosigkeit (durch vorübergehenden Wechsel zwischen Arbeitsplätzen)."},
+  {cat:'wiso', sub:'wirtschaft', q:"Was versteht man unter Globalisierung?", a:"Die zunehmende weltweite wirtschaftliche, politische, kulturelle und technologische Vernetzung und gegenseitige Abhängigkeit von Ländern und Märkten."},
+  {cat:'wiso', sub:'wirtschaft', q:"Was sind Standortfaktoren für Unternehmen?", a:"Kriterien, die die Attraktivität eines Wirtschaftsstandorts beeinflussen, z. B. Infrastruktur, Lohnkosten, Verfügbarkeit von Fachkräften, Steuerlast, rechtliche Rahmenbedingungen und Nähe zu Absatzmärkten."},
+  {cat:'wiso', sub:'schutz', q:"Was regelt das Bundesdatenschutzgesetz (BDSG) im Verhältnis zur DSGVO?", a:"Es ergänzt und konkretisiert die DSGVO für Deutschland dort, wo die DSGVO den Mitgliedstaaten eigenen Regelungsspielraum lässt (z. B. Beschäftigtendatenschutz)."},
+  {cat:'wiso', sub:'tarif', q:"Was ist eine Betriebsvereinbarung?", a:"Eine schriftliche Vereinbarung zwischen Arbeitgeber und Betriebsrat, die betriebliche Angelegenheiten verbindlich für alle Arbeitnehmer des Betriebs regelt."},
+  {cat:'wiso', sub:'schutz', q:"Was verlangt das Arbeitsschutzgesetz (ArbSchG) von Arbeitgebern?", a:"Es verpflichtet Arbeitgeber, Maßnahmen zur Sicherheit und zum Gesundheitsschutz der Beschäftigten bei der Arbeit zu treffen, u. a. durch Gefährdungsbeurteilungen."},
+  {cat:'wiso', sub:'schutz', q:"Was ist eine Gefährdungsbeurteilung?", a:"Eine systematische Ermittlung und Bewertung von Gefahren am Arbeitsplatz mit dem Ziel, geeignete Schutzmaßnahmen abzuleiten."},
+  {cat:'wiso', sub:'sonstiges-wiso', q:"Was unterscheidet einen kooperativen von einem autoritären Führungsstil?", a:"Beim kooperativen Führungsstil werden Mitarbeiter in Entscheidungen einbezogen und Verantwortung geteilt. Beim autoritären Führungsstil trifft die Führungskraft Entscheidungen allein und gibt Anweisungen ohne Mitspracherecht der Mitarbeiter."},
+  {cat:'wiso', sub:'arbeitsrecht', q:"Was ist ein befristetes Arbeitsverhältnis?", a:"Ein Arbeitsverhältnis, das von vornherein auf einen bestimmten Zeitraum oder Zweck begrenzt ist und ohne Kündigung automatisch mit Fristablauf endet."},
+  {cat:'wiso', sub:'arbeitsrecht', q:"Unter welchen Voraussetzungen ist eine sachgrundlose Befristung nach TzBfG zulässig?", a:"Grundsätzlich bis zu einer Gesamtdauer von 2 Jahren, innerhalb derer eine Verlängerung bis zu dreimal möglich ist, sofern zuvor kein Arbeitsverhältnis mit demselben Arbeitgeber bestand."},
+  {cat:'wiso', sub:'steuern', q:"Was ist der Unterschied zwischen Brutto- und Nettolohn?", a:"Der Bruttolohn ist der vereinbarte Lohn vor Abzügen. Der Nettolohn ist der tatsächlich ausgezahlte Betrag nach Abzug von Steuern und Sozialversicherungsbeiträgen."},
+  {cat:'wiso', sub:'steuern', q:"Wer trägt die Beiträge zur gesetzlichen Sozialversicherung in Deutschland grundsätzlich?", a:"Sie werden in der Regel paritätisch, also etwa zur Hälfte, von Arbeitgeber und Arbeitnehmer getragen (Ausnahmen z. B. bei der Unfallversicherung, die allein der Arbeitgeber trägt)."},
+  {cat:'wiso', sub:'steuern', q:"Was ist die Künstlersozialkasse und wen betrifft sie?", a:"Eine Einrichtung, über die selbstständige Künstler und Publizisten Zugang zur gesetzlichen Kranken-, Pflege- und Rentenversicherung erhalten, ähnlich wie Arbeitnehmer, wobei ein Teil der Beiträge über eine Abgabe der Verwerter (z. B. Verlage) finanziert wird."},
+  {cat:'wiso', sub:'unternehmen', q:"Was ist eine Genossenschaft (eG)?", a:"Ein Zusammenschluss von Mitgliedern zur gemeinsamen wirtschaftlichen Förderung, bei dem jedes Mitglied unabhängig von der Kapitaleinlage in der Regel eine Stimme hat."},
+  {cat:'wiso', sub:'unternehmen', q:"Was bedeutet Prokura?", a:"Eine vom Inhaber erteilte, umfassende Vollmacht, die den Prokuristen berechtigt, das Unternehmen fast uneingeschränkt gerichtlich und außergerichtlich zu vertreten."},
+  {cat:'wiso', sub:'unternehmen', q:"Was ist der Unterschied zwischen Vollmacht und Prokura?", a:"Eine Vollmacht kann inhaltlich frei und individuell begrenzt werden. Prokura ist eine besondere, gesetzlich geregelte Form der Handlungsvollmacht mit einem gesetzlich festgelegten, weitreichenden Umfang, die ins Handelsregister eingetragen wird."},
+  {cat:'wiso', sub:'wirtschaft', q:"Was ist ein Wechselkurs?", a:"Das Austauschverhältnis zwischen zwei Währungen, das angibt, wie viel Einheiten einer Währung man für eine Einheit einer anderen Währung erhält."},
+  {cat:'wiso', sub:'wirtschaft', q:"Was versteht man unter Außenhandel (Import/Export)?", a:"Den Austausch von Waren und Dienstleistungen zwischen verschiedenen Ländern — Export bezeichnet den Verkauf ins Ausland, Import den Kauf aus dem Ausland."},
+  {cat:'wiso', sub:'wirtschaft', q:"Was ist die Handelsbilanz eines Landes?", a:"Die Gegenüberstellung von Exporten und Importen eines Landes innerhalb eines Zeitraums; ein Überschuss der Exporte über die Importe wird als positive Handelsbilanz (Außenhandelsüberschuss) bezeichnet."},
+  {cat:'wiso', sub:'steuern', q:"Was sind Minijobs sozialversicherungsrechtlich?", a:"Geringfügige Beschäftigungen bis zu einer bestimmten monatlichen Verdienstgrenze, die für den Arbeitnehmer weitgehend von der Sozialversicherungspflicht befreit sind; der Arbeitgeber zahlt jedoch Pauschalabgaben."},
+  {cat:'wiso', sub:'arbeitsrecht', q:"Was regelt das Entgeltfortzahlungsgesetz?", a:"Es sichert Arbeitnehmern im Krankheitsfall für bis zu 6 Wochen die Fortzahlung des Arbeitsentgelts durch den Arbeitgeber, sofern bestimmte Voraussetzungen (z. B. Mindestbeschäftigungsdauer) erfüllt sind."},
+  {cat:'wiso', sub:'steuern', q:"Was ist eine betriebliche Altersvorsorge (bAV)?", a:"Eine zusätzliche, vom Arbeitgeber organisierte oder ermöglichte Form der Altersversorgung, die die gesetzliche Rente ergänzen soll, z. B. über Entgeltumwandlung."},
+  {cat:'wiso', sub:'steuern', q:"Was versteht man unter dem Arbeitgeberzuschuss zur betrieblichen Altersvorsorge?", a:"Ein gesetzlich vorgeschriebener Zuschuss, den der Arbeitgeber bei Entgeltumwandlung zusätzlich in die betriebliche Altersvorsorge einzahlen muss, da er durch die Umwandlung Sozialversicherungsbeiträge einspart."},
+  {cat:'wiso', sub:'unternehmen', q:"Was ist der Unterschied zwischen einer Aktiengesellschaft (AG) und einer GmbH bezüglich der Organe?", a:"Bei der AG gibt es zwingend Vorstand, Aufsichtsrat und Hauptversammlung. Bei der GmbH sind Geschäftsführung und Gesellschafterversammlung Pflichtorgane, ein Aufsichtsrat ist meist nur ab einer bestimmten Unternehmensgröße vorgeschrieben."},
+  {cat:'wiso', sub:'unternehmen', q:"Was ist eine Hauptversammlung bei einer AG?", a:"Das oberste Organ der Aktiengesellschaft, in dem die Aktionäre über zentrale Angelegenheiten (z. B. Gewinnverwendung, Wahl des Aufsichtsrats, Satzungsänderungen) entscheiden."},
+  {cat:'wiso', sub:'tarif', q:"Was bedeutet Mitbestimmung auf Unternehmensebene (z. B. im Aufsichtsrat)?", a:"Arbeitnehmervertreter erhalten (je nach Unternehmensgröße und Mitbestimmungsgesetz) Sitze im Aufsichtsrat und können so auf unternehmerische Grundsatzentscheidungen Einfluss nehmen."},
+  {cat:'wiso', sub:'wirtschaft', q:"Was ist der Unterschied zwischen Real- und Nominallohn?", a:"Der Nominallohn ist der in Geld ausgezahlte Betrag. Der Reallohn beschreibt die tatsächliche Kaufkraft dieses Betrags unter Berücksichtigung der Inflation."},
+  {cat:'wiso', sub:'wirtschaft', q:"Was ist eine Volkswirtschaftliche Gesamtrechnung (VGR)?", a:"Ein statistisches System, das die wirtschaftliche Leistung und die Wertschöpfung einer Volkswirtschaft über einen Zeitraum erfasst, u. a. zur Berechnung des BIP."},
+  {cat:'wiso', sub:'wirtschaft', q:"Was versteht man unter sozialer Marktwirtschaft?", a:"Ein Wirtschaftssystem, das die Freiheit des Marktes (Angebot und Nachfrage, Wettbewerb) mit sozialem Ausgleich durch den Staat verbindet, z. B. durch Sozialversicherungen und Arbeitnehmerschutzrechte."},
+  {cat:'wiso', sub:'tarif', q:"Was ist der Unterschied zwischen Streik und Aussperrung hinsichtlich der Initiative?", a:"Der Streik ist eine Arbeitskampfmaßnahme der Arbeitnehmerseite (organisiert durch Gewerkschaften), die Aussperrung eine Gegenmaßnahme der Arbeitgeberseite."},
+  // ================= Entwicklung & Umsetzung von Algorithmen =================
+  {cat:'algo', sub:'sql', q:"Was ist der Fehler in diesem UPDATE-Statement?", a:"Es fehlt eine WHERE-Klausel — ohne sie wird nachname bei ALLEN Zeilen der Tabelle kunden auf 'Müller' gesetzt, nicht nur bei einem bestimmten Kunden.", qCode:"UPDATE kunden\nSET nachname = 'Müller';", aCode:"UPDATE kunden\nSET nachname = 'Müller'\nWHERE kunden_id = 17;"},
+  {cat:'algo', sub:'sql', q:"Ist dieses Statement wahrscheinlich ein Fehler — und warum?", a:"Ohne WHERE-Klausel löscht DELETE FROM bestellungen ALLE Zeilen der Tabelle. Das ist fast immer ein Fehler, wenn nicht wirklich die ganze Tabelle geleert werden soll.", qCode:"DELETE FROM bestellungen;", aCode:"DELETE FROM bestellungen\nWHERE status = 'storniert';\n-- oder, falls wirklich ALLE Zeilen weg sollen:\nTRUNCATE TABLE bestellungen;"},
+  {cat:'algo', sub:'sql', q:"Warum schlägt dieses INSERT-Statement fehl?", a:"Die Spaltenliste nennt 3 Spalten (vorname, nachname, plz), aber es werden nur 2 Werte angegeben — für jede genannte Spalte muss genau ein Wert folgen.", qCode:"INSERT INTO kunden (vorname, nachname, plz)\nVALUES ('Anna', 'Schmidt');", aCode:"INSERT INTO kunden (vorname, nachname, plz)\nVALUES ('Anna', 'Schmidt', '10115');"},
+  {cat:'algo', sub:'sql', q:"Warum liefert diese Abfrage nie ein Ergebnis, selbst wenn austrittsdatum leer ist?", a:"NULL steht für \"unbekannt\" und kann nicht mit = verglichen werden — x = NULL ergibt immer NULL (nicht wahr), nie TRUE.", qCode:"SELECT * FROM mitarbeiter\nWHERE austrittsdatum = NULL;", aCode:"SELECT * FROM mitarbeiter\nWHERE austrittsdatum IS NULL;"},
+  {cat:'algo', sub:'sql', q:"Was ist an diesem Statement problematisch?", a:"nachname wird ausgewählt, steht aber nicht in GROUP BY und ist auch keine Aggregatfunktion — pro Gruppe könnten mehrere unterschiedliche nachname-Werte vorkommen.", qCode:"SELECT vorname, nachname, COUNT(*)\nFROM bestellungen\nGROUP BY vorname;", aCode:"SELECT vorname, nachname, COUNT(*)\nFROM bestellungen\nGROUP BY vorname, nachname;"},
+  {cat:'algo', sub:'sql', q:"Was fehlt hier, und was ist die Folge?", a:"Es fehlt die ON- bzw. USING-Bedingung des JOINs. In den meisten Datenbanksystemen (z. B. PostgreSQL, Oracle, SQL Server) ist ein JOIN ohne Bedingung ein Syntaxfehler, da ON oder USING zwingend vorgeschrieben ist. Einige Systeme wie MySQL akzeptieren es dagegen und werten es als kartesisches Produkt: jede Zeile aus a wird mit jeder Zeile aus b kombiniert, statt gezielt verknüpft zu werden.", qCode:"SELECT a.name, b.name\nFROM mitarbeiter a\nJOIN abteilung b;", aCode:"SELECT a.name, b.name\nFROM mitarbeiter a\nJOIN abteilung b ON a.abteilung_id = b.id;"},
+  {cat:'algo', sub:'sql', q:"Warum verursacht diese Abfrage einen Syntaxfehler?", a:"Das schließende einfache Anführungszeichen nach München fehlt — das String-Literal ist nicht korrekt abgeschlossen.", qCode:"SELECT name FROM kunden WHERE ort = 'München;", aCode:"SELECT name FROM kunden WHERE ort = 'München';"},
+  {cat:'algo', sub:'sql', q:"Warum funktioniert dieses Statement nicht direkt so?", a:"Aggregatfunktionen wie AVG() dürfen nicht direkt in WHERE stehen, da WHERE vor der Aggregation ausgewertet wird. Lösung: eine Subquery verwenden.", qCode:"SELECT name, gehalt\nFROM mitarbeiter\nWHERE gehalt > AVG(gehalt);", aCode:"SELECT name, gehalt\nFROM mitarbeiter\nWHERE gehalt > (SELECT AVG(gehalt) FROM mitarbeiter);"},
+  {cat:'algo', sub:'sql', q:"Was ist an diesem Statement syntaktisch falsch?", a:"Ein UPDATE darf nur eine SET-Klausel haben; mehrere Spalten werden durch Komma getrennt in derselben SET-Klausel gesetzt, vor der WHERE-Klausel.", qCode:"UPDATE produkte\nSET preis = preis * 1.1\nWHERE kategorie = 'Elektronik'\nSET lagerbestand = lagerbestand - 1;", aCode:"UPDATE produkte\nSET preis = preis * 1.1,\n    lagerbestand = lagerbestand - 1\nWHERE kategorie = 'Elektronik';"},
+  {cat:'algo', sub:'sql', q:"Ist dieses Statement falsch? Was unterscheidet es von einem expliziten JOIN?", a:"Syntaktisch gültig (impliziter JOIN über Komma mit Bedingung in WHERE) und liefert dasselbe wie ein INNER JOIN — gilt aber als schlechter Stil, da die Join-Bedingung leicht vergessen werden kann.", qCode:"SELECT * FROM kunden, bestellungen\nWHERE kunden.id = bestellungen.kunden_id;", aCode:"SELECT *\nFROM kunden\nJOIN bestellungen ON kunden.id = bestellungen.kunden_id;"},
+  {cat:'algo', sub:'sql', q:"Welches Risiko birgt dieses INSERT-Statement, auch wenn es aktuell funktioniert?", a:"Ohne explizite Spaltenliste verlässt sich das Statement auf die physische Spaltenreihenfolge der Tabelle. Ändert sich diese später, landen Werte in den falschen Spalten, ohne dass sofort ein Fehler auftritt.", qCode:"INSERT INTO kunden VALUES ('Lisa', 'Berlin');", aCode:"INSERT INTO kunden (vorname, stadt)\nVALUES ('Lisa', 'Berlin');"},
+  {cat:'algo', sub:'sql', q:"Unter welcher Bedingung schlägt dieses Statement zur Laufzeit fehl?", a:"Liefert die Subquery mehr als eine Zeile (z. B. mehrere Abteilungen mit demselben Namen), schlägt der Vergleich mit = fehl, da = nur einen einzelnen Wert erwartet.", qCode:"SELECT nachname\nFROM mitarbeiter\nWHERE abteilung_id = (\n  SELECT id FROM abteilung WHERE name = 'Vertrieb'\n);", aCode:"SELECT nachname\nFROM mitarbeiter\nWHERE abteilung_id IN (\n  SELECT id FROM abteilung WHERE name = 'Vertrieb'\n);"},
+  {cat:'algo', sub:'sql', q:"Warum ist dieses Statement wahrscheinlich nicht das, was beabsichtigt war?", a:"AND bindet stärker als OR, daher wird dies als (kunden_id = 5 AND status = 'offen') OR status = 'storniert' ausgewertet — dadurch werden auch stornierte Bestellungen ANDERER Kunden gelöscht.", qCode:"DELETE FROM bestellungen\nWHERE kunden_id = 5\n  AND status = 'offen'\n  OR status = 'storniert';", aCode:"DELETE FROM bestellungen\nWHERE kunden_id = 5\n  AND (status = 'offen' OR status = 'storniert');"},
+  {cat:'algo', sub:'sql', q:"Warum kann dieses Statement bei einer bereits gefüllten Tabelle fehlschlagen?", a:"Eine neue NOT NULL-Spalte ohne Default-Wert kann für bereits existierende Zeilen keinen gültigen Wert erhalten — viele Datenbanksysteme lehnen das ohne DEFAULT ab.", qCode:"ALTER TABLE kunden\nADD COLUMN telefon VARCHAR(20) NOT NULL;", aCode:"ALTER TABLE kunden\nADD COLUMN telefon VARCHAR(20) NOT NULL DEFAULT '';"},
+  {cat:'algo', sub:'sql', q:"Was ist hier falsch?", a:"Aggregatfunktionen dürfen nicht in WHERE stehen — Filterungen auf aggregierte Werte gehören in die HAVING-Klausel, die nach der Gruppierung ausgewertet wird.", qCode:"SELECT kunde_id, SUM(betrag) AS summe\nFROM bestellungen\nWHERE SUM(betrag) > 1000\nGROUP BY kunde_id;", aCode:"SELECT kunde_id, SUM(betrag) AS summe\nFROM bestellungen\nGROUP BY kunde_id\nHAVING SUM(betrag) > 1000;"},
+  {cat:'algo', sub:'sql', q:"Was ist an der zweiten JOIN-Bedingung wahrscheinlich ein Fehler?", a:"m.id = a.id verknüpft die Mitarbeiter-ID direkt mit der Abteilungs-ID — das sind unterschiedliche Entitäten. Vermutlich sollte über ein Fremdschlüsselfeld verknüpft werden.", qCode:"SELECT *\nFROM mitarbeiter m\nJOIN gehalt g ON m.id = g.mitarbeiter_id\nJOIN abteilung a ON m.id = a.id;", aCode:"SELECT *\nFROM mitarbeiter m\nJOIN gehalt g ON m.id = g.mitarbeiter_id\nJOIN abteilung a ON m.abteilung_id = a.id;"},
+  {cat:'algo', sub:'sql', q:"Welcher Syntaxfehler steckt in diesem CREATE TABLE-Statement?", a:"Zwischen den Spaltendefinitionen datum DATE und betrag DECIMAL(10,2) fehlt ein Komma als Trennzeichen.", qCode:"CREATE TABLE bestellungen (\n  id INT PRIMARY KEY,\n  kunde_id INT,\n  datum DATE\n  betrag DECIMAL(10,2)\n);", aCode:"CREATE TABLE bestellungen (\n  id INT PRIMARY KEY,\n  kunde_id INT,\n  datum DATE,\n  betrag DECIMAL(10,2)\n);"},
+  {cat:'algo', sub:'sql', q:"Was ist an diesem Statement syntaktisch falsch?", a:"Nach 500 steht ein überflüssiges Komma vor der schließenden Klammer — das ist ein Syntaxfehler.", qCode:"SELECT name FROM kunden\nWHERE id IN (\n  SELECT kunde_id FROM bestellungen WHERE betrag > 500,\n);", aCode:"SELECT name FROM kunden\nWHERE id IN (\n  SELECT kunde_id FROM bestellungen WHERE betrag > 500\n);"},
+  {cat:'algo', sub:'sql', q:"Warum liefert diese Abfrage vermutlich viel mehr Zeilen als erwartet?", a:"Es fehlt jede Verknüpfungsbedingung zwischen den beiden Tabellen — das Ergebnis ist ein kartesisches Produkt: jede Zeile aus mitarbeiter wird mit jeder Zeile aus abteilung kombiniert.", qCode:"SELECT name, abteilung\nFROM mitarbeiter, abteilung;", aCode:"SELECT name, abteilung\nFROM mitarbeiter\nJOIN abteilung ON mitarbeiter.abteilung_id = abteilung.id;"},
+  {cat:'algo', sub:'sql', q:"Diese beiden Überweisungs-Statements laufen einzeln ohne Fehler — was fehlt trotzdem für den sicheren Praxiseinsatz?", a:"Eine Transaktion um beide Statements herum. Ohne sie könnte z. B. nach dem ersten UPDATE ein Systemabsturz passieren — Geld wird abgebucht, aber nie gutgeschrieben. Das verletzt die Atomicity (A in ACID).", qCode:"UPDATE konto SET saldo = saldo - 100 WHERE konto_id = 1;\nUPDATE konto SET saldo = saldo + 100 WHERE konto_id = 2;", aCode:"BEGIN TRANSACTION;\nUPDATE konto SET saldo = saldo - 100 WHERE konto_id = 1;\nUPDATE konto SET saldo = saldo + 100 WHERE konto_id = 2;\nCOMMIT;"},
+  // ================= Planen eines Softwareproduktes =================
+  {cat:'plan', sub:'uml', q:"Was zeigt dieses Diagramm, und was bedeutet die Multiplizität \"0..*\" auf der Seite von Bestellung?", a:"Es zeigt eine Assoziation zwischen den Klassen Kunde und Bestellung. Die Multiplizität 1 auf der Kunde-Seite und 0..* auf der Bestellung-Seite bedeutet: Ein Kunde kann keine, eine oder mehrere Bestellungen haben, aber jede Bestellung gehört zu genau einem Kunden.", qSvg:"<svg viewBox=\"0 0 360 110\" xmlns=\"http://www.w3.org/2000/svg\"><style>text{font-family:'JetBrains Mono',monospace;}.box{fill:var(--card);stroke:var(--ink);stroke-width:1.2;}.lbl{font-size:12px;fill:var(--ink);font-weight:600;}.mult{font-size:10px;fill:var(--ink-soft);}.conn{stroke:var(--ink-soft);stroke-width:1.2;}</style><rect class=\"box\" x=\"15\" y=\"30\" width=\"110\" height=\"40\" rx=\"2\"/><text class=\"lbl\" x=\"70\" y=\"54\" text-anchor=\"middle\">Kunde</text><rect class=\"box\" x=\"235\" y=\"30\" width=\"110\" height=\"40\" rx=\"2\"/><text class=\"lbl\" x=\"290\" y=\"54\" text-anchor=\"middle\">Bestellung</text><line class=\"conn\" x1=\"125\" y1=\"50\" x2=\"235\" y2=\"50\"/><text class=\"mult\" x=\"133\" y=\"44\">1</text><text class=\"mult\" x=\"200\" y=\"44\">0..*</text></svg>"},
+  {cat:'plan', sub:'uml', q:"Welche der beiden Beziehungen ist die Aggregation und welche die Komposition — und woran erkennt man den Unterschied in der Notation?", a:"Links (offene, nicht gefüllte Raute) steht die Aggregation: Ein Rad kann unabhängig vom Fahrzeug existieren. Rechts (gefüllte Raute) steht die Komposition: Ein Zimmer ist existenzabhängig vom Haus — wird das Haus abgerissen, verschwindet auch das Zimmer als Teil davon.", qSvg:"<svg viewBox=\"0 0 410 110\" xmlns=\"http://www.w3.org/2000/svg\"><style>text{font-family:'JetBrains Mono',monospace;}.box{fill:var(--card);stroke:var(--ink);stroke-width:1.2;}.lbl{font-size:11px;fill:var(--ink);font-weight:600;}.cap{font-size:10px;fill:var(--ink-soft);}.conn{stroke:var(--ink-soft);stroke-width:1.2;}</style><text class=\"cap\" x=\"10\" y=\"14\">Aggregation (offene Raute)</text><rect class=\"box\" x=\"10\" y=\"45\" width=\"90\" height=\"34\" rx=\"2\"/><text class=\"lbl\" x=\"55\" y=\"66\" text-anchor=\"middle\">Fahrzeug</text><polygon points=\"108,72 118,66 128,72 118,78\" fill=\"var(--card)\" stroke=\"var(--ink)\" stroke-width=\"1.2\"/><line class=\"conn\" x1=\"100\" y1=\"72\" x2=\"108\" y2=\"72\"/><line class=\"conn\" x1=\"128\" y1=\"72\" x2=\"138\" y2=\"72\"/><rect class=\"box\" x=\"138\" y=\"55\" width=\"60\" height=\"34\" rx=\"2\"/><text class=\"lbl\" x=\"168\" y=\"76\" text-anchor=\"middle\">Rad</text><text class=\"cap\" x=\"210\" y=\"14\">Komposition (gefüllte Raute)</text><rect class=\"box\" x=\"210\" y=\"45\" width=\"80\" height=\"34\" rx=\"2\"/><text class=\"lbl\" x=\"250\" y=\"66\" text-anchor=\"middle\">Haus</text><polygon points=\"298,72 308,66 318,72 308,78\" fill=\"var(--ink)\" stroke=\"var(--ink)\" stroke-width=\"1.2\"/><line class=\"conn\" x1=\"290\" y1=\"72\" x2=\"298\" y2=\"72\"/><line class=\"conn\" x1=\"318\" y1=\"72\" x2=\"328\" y2=\"72\"/><rect class=\"box\" x=\"328\" y=\"55\" width=\"70\" height=\"34\" rx=\"2\"/><text class=\"lbl\" x=\"363\" y=\"76\" text-anchor=\"middle\">Zimmer</text></svg>"},
+  {cat:'plan', sub:'uml', q:"Was drückt dieser Pfeil mit der offenen, nicht gefüllten Dreiecksspitze zwischen Auto und Fahrzeug aus?", a:"Er zeigt eine Generalisierung/Vererbung: Auto ist eine Spezialisierung von Fahrzeug (\"Auto ist ein Fahrzeug\"). Der Pfeil zeigt dabei immer von der Unterklasse zur Oberklasse.", qSvg:"<svg viewBox=\"0 0 220 170\" xmlns=\"http://www.w3.org/2000/svg\"><defs><marker id=\"genArrow\" markerWidth=\"14\" markerHeight=\"12\" refX=\"11\" refY=\"6\" orient=\"auto\"><path d=\"M0,0 L12,6 L0,12 Z\" fill=\"var(--card)\" stroke=\"var(--ink)\" stroke-width=\"1\"/></marker></defs><style>text{font-family:'JetBrains Mono',monospace;}.box{fill:var(--card);stroke:var(--ink);stroke-width:1.2;}.lbl{font-size:12px;fill:var(--ink);font-weight:600;}</style><rect class=\"box\" x=\"55\" y=\"15\" width=\"110\" height=\"36\" rx=\"2\"/><text class=\"lbl\" x=\"110\" y=\"38\" text-anchor=\"middle\">Fahrzeug</text><rect class=\"box\" x=\"55\" y=\"118\" width=\"110\" height=\"36\" rx=\"2\"/><text class=\"lbl\" x=\"110\" y=\"141\" text-anchor=\"middle\">Auto</text><line x1=\"110\" y1=\"118\" x2=\"110\" y2=\"58\" stroke=\"var(--ink)\" stroke-width=\"1.3\" marker-end=\"url(#genArrow)\"/></svg>"},
+  {cat:'plan', sub:'uml', q:"Was bedeutet die gestrichelte Verbindung mit der Beschriftung «include» zwischen den beiden Anwendungsfällen?", a:"Der Anwendungsfall \"Bestellung aufgeben\" schließt \"Zahlung prüfen\" zwingend mit ein — jedes Mal, wenn \"Bestellung aufgeben\" ausgeführt wird, läuft automatisch auch \"Zahlung prüfen\" mit. Die Pfeilspitze zeigt dabei vom Basis-Anwendungsfall zum eingeschlossenen Anwendungsfall. Das unterscheidet «include» von «extend», wo die Einbindung nur optional erfolgt.", qSvg:"<svg viewBox=\"0 0 380 190\" xmlns=\"http://www.w3.org/2000/svg\"><defs><marker id=\"incArrow\" markerWidth=\"10\" markerHeight=\"10\" refX=\"8\" refY=\"4\" orient=\"auto\"><path d=\"M0,0 L8,4 L0,8\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"1\"/></marker></defs><style>text{font-family:'JetBrains Mono',monospace;font-size:11px;fill:var(--ink);}.cap{font-size:9px;fill:var(--ink-soft);}.oval{fill:var(--card);stroke:var(--ink);stroke-width:1.2;}.conn{stroke:var(--ink-soft);stroke-width:1.2;fill:none;}.person{stroke:var(--ink);stroke-width:1.3;fill:none;}</style><circle class=\"person\" cx=\"30\" cy=\"40\" r=\"9\"/><line class=\"person\" x1=\"30\" y1=\"49\" x2=\"30\" y2=\"80\"/><line class=\"person\" x1=\"14\" y1=\"60\" x2=\"46\" y2=\"60\"/><line class=\"person\" x1=\"30\" y1=\"80\" x2=\"16\" y2=\"105\"/><line class=\"person\" x1=\"30\" y1=\"80\" x2=\"44\" y2=\"105\"/><text x=\"10\" y=\"120\">Kunde</text><ellipse class=\"oval\" cx=\"220\" cy=\"55\" rx=\"100\" ry=\"30\"/><text x=\"220\" y=\"59\" text-anchor=\"middle\">Bestellung aufgeben</text><ellipse class=\"oval\" cx=\"220\" cy=\"150\" rx=\"95\" ry=\"30\"/><text x=\"220\" y=\"154\" text-anchor=\"middle\">Zahlung prüfen</text><line class=\"conn\" x1=\"46\" y1=\"55\" x2=\"120\" y2=\"55\"/><line x1=\"220\" y1=\"85\" x2=\"220\" y2=\"118\" stroke=\"var(--ink-soft)\" stroke-width=\"1.2\" stroke-dasharray=\"4 3\" marker-end=\"url(#incArrow)\"/><text class=\"cap\" x=\"226\" y=\"105\">«include»</text></svg>"},
+  {cat:'plan', sub:'uml', q:"Was ist der Unterschied zwischen dem durchgezogenen und dem gestrichelten Pfeil in diesem Sequenzdiagramm?", a:"Der durchgezogene Pfeil (bestellen()) ist ein synchroner Nachrichtenaufruf vom Kunden an den Webshop. Der gestrichelte Pfeil (Bestätigung) ist die zugehörige Rückantwort (Return-Nachricht) vom Webshop zurück an den Kunden.", qSvg:"<svg viewBox=\"0 0 320 180\" xmlns=\"http://www.w3.org/2000/svg\"><defs><marker id=\"seqArrow1\" markerWidth=\"10\" markerHeight=\"10\" refX=\"8\" refY=\"4\" orient=\"auto\"><path d=\"M0,0 L8,4 L0,8 Z\" fill=\"var(--ink)\"/></marker><marker id=\"seqArrow2\" markerWidth=\"10\" markerHeight=\"10\" refX=\"8\" refY=\"4\" orient=\"auto\"><path d=\"M0,0 L8,4 L0,8 Z\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"1\"/></marker></defs><style>text{font-family:'JetBrains Mono',monospace;font-size:10px;fill:var(--ink);}.box{fill:var(--card);stroke:var(--ink);stroke-width:1.2;}.life{stroke:var(--ink-soft);stroke-width:1;stroke-dasharray:3 3;}</style><rect class=\"box\" x=\"20\" y=\"8\" width=\"80\" height=\"28\" rx=\"2\"/><text x=\"60\" y=\"26\" text-anchor=\"middle\">Kunde</text><rect class=\"box\" x=\"220\" y=\"8\" width=\"80\" height=\"28\" rx=\"2\"/><text x=\"260\" y=\"26\" text-anchor=\"middle\">Webshop</text><line class=\"life\" x1=\"60\" y1=\"36\" x2=\"60\" y2=\"165\"/><line class=\"life\" x1=\"260\" y1=\"36\" x2=\"260\" y2=\"165\"/><line x1=\"60\" y1=\"70\" x2=\"258\" y2=\"70\" stroke=\"var(--ink)\" stroke-width=\"1.3\" marker-end=\"url(#seqArrow1)\"/><text x=\"70\" y=\"64\">bestellen()</text><line x1=\"260\" y1=\"120\" x2=\"62\" y2=\"120\" stroke=\"var(--ink)\" stroke-width=\"1.1\" stroke-dasharray=\"5 3\" marker-end=\"url(#seqArrow2)\"/><text x=\"100\" y=\"114\">Bestätigung</text></svg>"},
+  {cat:'plan', sub:'uml', q:"Wie liest man die Kardinalitäten 1 und n in diesem ER-Diagramm zwischen Autor und Buch?", a:"Ein Autor (1) kann n Bücher schreiben, aber jedes Buch wird in diesem Modell genau einem Autor zugeordnet — es handelt sich um eine 1:n-Beziehung zwischen Autor und Buch.", qSvg:"<svg viewBox=\"0 0 360 120\" xmlns=\"http://www.w3.org/2000/svg\"><style>text{font-family:'JetBrains Mono',monospace;}.box{fill:var(--card);stroke:var(--ink);stroke-width:1.2;}.lbl{font-size:12px;fill:var(--ink);font-weight:600;}.mult{font-size:10px;fill:var(--ink-soft);}.conn{stroke:var(--ink-soft);stroke-width:1.2;}.rel{fill:var(--paper-2);stroke:var(--ink);stroke-width:1.2;}</style><rect class=\"box\" x=\"15\" y=\"35\" width=\"90\" height=\"40\" rx=\"2\"/><text class=\"lbl\" x=\"60\" y=\"59\" text-anchor=\"middle\">Autor</text><polygon class=\"rel\" points=\"180,35 220,55 180,75 140,55\"/><text class=\"lbl\" x=\"180\" y=\"59\" text-anchor=\"middle\" font-size=\"10\">schreibt</text><rect class=\"box\" x=\"255\" y=\"35\" width=\"90\" height=\"40\" rx=\"2\"/><text class=\"lbl\" x=\"300\" y=\"59\" text-anchor=\"middle\">Buch</text><line class=\"conn\" x1=\"105\" y1=\"55\" x2=\"140\" y2=\"55\"/><line class=\"conn\" x1=\"220\" y1=\"55\" x2=\"255\" y2=\"55\"/><text class=\"mult\" x=\"112\" y=\"48\">1</text><text class=\"mult\" x=\"235\" y=\"48\">n</text></svg>"},
+  // ================= Entwicklung & Umsetzung von Algorithmen =================
+  {cat:'algo', sub:'oop', q:"Was gibt dieses Programm aus, und warum (Stichwort: Polymorphismus)?", a:"Es gibt \"Wuff!\" aus. Obwohl die Variable t vom Typ Tier deklariert ist, zeigt sie zur Laufzeit auf ein Hund-Objekt. Bei überschriebenen Methoden entscheidet der tatsächliche (dynamische) Typ des Objekts, welche Methode ausgeführt wird — nicht der deklarierte Typ der Variablen.", qCode:"class Tier {\n    void sprich() { System.out.println(\"Ein Tier macht ein Geräusch\"); }\n}\nclass Hund extends Tier {\n    void sprich() { System.out.println(\"Wuff!\"); }\n}\npublic class Test {\n    public static void main(String[] args) {\n        Tier t = new Hund();\n        t.sprich();\n    }\n}"},
+  {cat:'algo', sub:'oop', q:"Wozu wird hier das Schlüsselwort this benötigt?", a:"Der Konstruktor-Parameter heißt genauso wie das Attribut (saldo). this.saldo verweist explizit auf das Objektattribut, saldo (ohne this) auf den lokalen Parameter — ohne this würde sich das Attribut selbst zugewiesen und der übergebene Wert ginge verloren.", qCode:"class Konto {\n    private double saldo;\n    public Konto(double saldo) {\n        this.saldo = saldo;\n    }\n    public double getSaldo() {\n        return saldo;\n    }\n}"},
+  {cat:'algo', sub:'oop', q:"Ist das Überladen oder Überschreiben — und woran erkennt man das?", a:"Das ist Überladen (Overloading): Zwei Methoden mit demselben Namen (addiere) in derselben Klasse, aber mit unterschiedlicher Parameterliste (int vs. double). Überschreiben würde eine geerbte Methode in einer Unterklasse mit identischer Signatur betreffen.", qCode:"class Rechner {\n    int addiere(int a, int b) { return a + b; }\n    double addiere(double a, double b) { return a + b; }\n}"},
+  {cat:'algo', sub:'oop', q:"Was ist aus Sicht der Kapselung an dieser Klasse problematisch?", a:"Die Attribute sind nicht als private deklariert und damit von außen direkt les- und veränderbar (z. B. mitarbeiter.gehalt = -500;), ohne jede Kontrolle. Korrekt wäre: private Attribute mit öffentlichen Getter-/Setter-Methoden, die z. B. ungültige Werte abfangen können.", qCode:"class Mitarbeiter {\n    String name;\n    double gehalt;\n}"},
+  {cat:'algo', sub:'oop', q:"Warum lässt sich dieser Code nicht kompilieren?", a:"Eine abstrakte Klasse kann nicht direkt mit new instanziiert werden — sie dient nur als Vorlage für konkrete Unterklassen, die alle abstrakten Methoden implementieren. new Form() muss durch eine konkrete Unterklasse ersetzt werden, z. B. new Kreis().", qCode:"abstract class Form {\n    abstract double flaeche();\n}\npublic class Test {\n    public static void main(String[] args) {\n        Form f = new Form();\n    }\n}"},
+  {cat:'algo', sub:'oop', q:"Warum kompiliert diese Klasse nicht?", a:"Rechnung implementiert das Interface Bezahlbar, setzt aber nicht alle seine Methoden um — storniere() fehlt. Eine Klasse, die ein Interface implementiert, muss zwingend ALLE darin deklarierten Methoden konkret implementieren (sofern sie nicht selbst abstrakt ist).", qCode:"interface Bezahlbar {\n    void bezahle(double betrag);\n    void storniere();\n}\nclass Rechnung implements Bezahlbar {\n    public void bezahle(double betrag) {\n        System.out.println(\"Bezahlt: \" + betrag);\n    }\n}"},
+  {cat:'algo', sub:'oop', q:"Was wird hier ausgegeben, und warum?", a:"3. Da anzahl als static deklariert ist, existiert sie nur einmal für die gesamte Klasse (nicht pro Objekt) und wird bei jedem Aufruf des Konstruktors (also bei jeder Objekterzeugung) um 1 erhöht — alle drei erzeugten Objekte teilen sich dieselbe Variable.", qCode:"class Zaehler {\n    static int anzahl = 0;\n    Zaehler() {\n        anzahl++;\n    }\n}\npublic class Test {\n    public static void main(String[] args) {\n        new Zaehler();\n        new Zaehler();\n        new Zaehler();\n        System.out.println(Zaehler.anzahl);\n    }\n}"},
+  {cat:'algo', sub:'oop', q:"Was gibt new Auto(\"VW\") aus, und was bewirkt super(marke) hier?", a:"Ausgabe: \"Fahrzeug: VW\" gefolgt von \"Auto erstellt\". super(marke) ruft explizit den Konstruktor der Oberklasse Fahrzeug auf, bevor der Rest des Auto-Konstruktors ausgeführt wird — so wird sichergestellt, dass die Oberklasse korrekt initialisiert wird.", qCode:"class Fahrzeug {\n    Fahrzeug(String marke) {\n        System.out.println(\"Fahrzeug: \" + marke);\n    }\n}\nclass Auto extends Fahrzeug {\n    Auto(String marke) {\n        super(marke);\n        System.out.println(\"Auto erstellt\");\n    }\n}"},
+  {cat:'algo', sub:'oop', q:"Überschreibt zeige(String x) in Abgeleitet die Methode zeige(int x) aus Basis?", a:"Nein. Da sich die Parametertypen unterscheiden (int vs. String), handelt es sich nicht um Overriding, sondern um eine zusätzliche überladene Methode. Beide Methoden existieren in Abgeleitet unabhängig nebeneinander.", qCode:"class Basis {\n    void zeige(int x) { System.out.println(\"Basis: \" + x); }\n}\nclass Abgeleitet extends Basis {\n    void zeige(String x) { System.out.println(\"Abgeleitet: \" + x); }\n}"},
+  {cat:'algo', sub:'oop', q:"Warum verursacht dieser Code einen Kompilierfehler?", a:"saldo ist private und damit nur innerhalb der Klasse Konto selbst zugänglich — von außen (hier in der Klasse Test) kann nicht direkt auf k.saldo zugegriffen werden. Es wird ein öffentlicher Getter wie getSaldo() benötigt.", qCode:"class Konto {\n    private double saldo = 100.0;\n}\npublic class Test {\n    public static void main(String[] args) {\n        Konto k = new Konto();\n        System.out.println(k.saldo);\n    }\n}"},
+  {cat:'algo', sub:'oop', q:"Was wird hier ungefähr ausgegeben, und wie könnte man eine lesbarere Ausgabe erreichen?", a:"Ohne eigene Implementierung gibt System.out.println(p) etwas wie Punkt@1b6d3586 aus (Klassenname + Hashcode) — die geerbte Standard-toString()-Methode von Object. Für eine lesbare Ausgabe (z. B. \"Punkt(3, 4)\") müsste die Klasse Punkt die Methode toString() überschreiben.", qCode:"class Punkt {\n    int x, y;\n    Punkt(int x, int y) { this.x = x; this.y = y; }\n}\npublic class Test {\n    public static void main(String[] args) {\n        Punkt p = new Punkt(3, 4);\n        System.out.println(p);\n    }\n}"},
+  {cat:'algo', sub:'oop', q:"Gibt dieser Code true oder false aus, obwohl p1 und p2 dieselben Koordinaten haben?", a:"false. Ohne überschriebene equals()-Methode vergleicht die geerbte Standardimplementierung aus Object nur die Objektreferenzen (Identität) — p1 und p2 sind zwei unterschiedliche Objekte im Speicher, auch wenn ihre Attributwerte gleich sind.", qCode:"class Punkt {\n    int x, y;\n    Punkt(int x, int y) { this.x = x; this.y = y; }\n}\npublic class Test {\n    public static void main(String[] args) {\n        Punkt p1 = new Punkt(1, 2);\n        Punkt p2 = new Punkt(1, 2);\n        System.out.println(p1.equals(p2));\n    }\n}"},
+  {cat:'algo', sub:'pseudocode', q:"Was gibt dieser Pseudocode am Ende aus?", a:"10 (0 + 1 + 2 + 3 + 4). Die kopfgesteuerte SOLANGE-Schleife durchläuft i = 0 bis 4 (5 Durchläufe, da bei i = 5 die Bedingung i < 5 nicht mehr erfüllt ist) und summiert dabei alle Werte von i auf.", qCode:"i := 0\nsumme := 0\nSOLANGE i < 5 TUE\n    summe := summe + i\n    i := i + 1\nENDSOLANGE\nAUSGABE summe"},
+  {cat:'algo', sub:'rekursion', q:"Was gibt fakultaet(4) zurück? Gehe die Rekursion Schritt für Schritt durch.", a:"24. fakultaet(4) = 4 * fakultaet(3) = 4 * 3 * fakultaet(2) = 4 * 3 * 2 * fakultaet(1) = 4 * 3 * 2 * 1 = 24 — der Basisfall n <= 1 liefert 1 und beendet die Rekursion.", qCode:"FUNKTION fakultaet(n)\n    WENN n <= 1 DANN\n        RÜCKGABE 1\n    SONST\n        RÜCKGABE n * fakultaet(n - 1)\n    ENDWENN\nENDFUNKTION\n\nAUSGABE fakultaet(4)"},
+  {cat:'algo', sub:'ds', q:"Welcher Laufzeitfehler tritt hier auf, und warum?", a:"ArrayIndexOutOfBoundsException. Das Array hat 3 Elemente mit den gültigen Indizes 0, 1, 2 (zahlen.length ist 3). Durch i <= zahlen.length wird beim letzten Durchlauf i = 3 erreicht, also ein Index außerhalb des gültigen Bereichs — richtig wäre i < zahlen.length.", qCode:"int[] zahlen = {10, 20, 30};\nfor (int i = 0; i <= zahlen.length; i++) {\n    System.out.println(zahlen[i]);\n}"},
+  {cat:'algo', sub:'oop', q:"Gibt dieser Code true oder false aus — und warum ist das für Anfänger oft überraschend?", a:"false. == vergleicht bei Objekten (wie String) die Referenzen, nicht den Inhalt. a und b sind hier zwei unterschiedliche String-Objekte mit demselben Inhalt. Für einen inhaltlichen Vergleich muss a.equals(b) verwendet werden, was hier true ergäbe.", qCode:"String a = new String(\"Hallo\");\nString b = new String(\"Hallo\");\nSystem.out.println(a == b);"},
+  {cat:'algo', sub:'oop', q:"Warum funktioniert der Zugriff auf wert in Abgeleitet, obwohl es nicht public ist?", a:"protected erlaubt den Zugriff innerhalb derselben Klasse, desselben Pakets UND durch Unterklassen (auch in anderen Paketen). Da Abgeleitet von Basis erbt, darf sie auf das protected-Attribut wert zugreifen.", qCode:"class Basis {\n    protected int wert = 10;\n}\nclass Abgeleitet extends Basis {\n    void zeige() {\n        System.out.println(wert);\n    }\n}"},
+  {cat:'algo', sub:'oop', q:"Dieser Code kompiliert, obwohl Person die Methode sagHallo() nicht selbst implementiert — warum?", a:"Seit Java 8 können Interfaces default-Methoden mit einer Standardimplementierung enthalten. Eine implementierende Klasse erbt diese Implementierung automatisch, wenn sie sie nicht selbst überschreibt — Person nutzt also die Standardimplementierung aus dem Interface.", qCode:"interface Begruessung {\n    default void sagHallo() {\n        System.out.println(\"Hallo!\");\n    }\n}\nclass Person implements Begruessung {}\npublic class Test {\n    public static void main(String[] args) {\n        new Person().sagHallo();\n    }\n}"},
+  {cat:'algo', sub:'oop', q:"Warum verursacht die Methode aendere() einen Kompilierfehler?", a:"MWST ist als final deklariert — einmal zugewiesen, kann der Wert nicht mehr geändert werden. Der Versuch, MWST erneut einen Wert zuzuweisen, ist ein Kompilierfehler.", qCode:"class Konstanten {\n    final double MWST = 0.19;\n    void aendere() {\n        MWST = 0.20;\n    }\n}"},
+  {cat:'algo', sub:'oop', q:"In welcher Reihenfolge wird hier ausgegeben, und warum?", a:"Zuerst \"A\", dann \"B\". Auch ohne explizites super() ruft Java automatisch den (parameterlosen) Konstruktor der Oberklasse zuerst auf, bevor der Code des Unterklassen-Konstruktors ausgeführt wird — die Oberklasse muss vollständig initialisiert sein, bevor die Unterklasse aufgebaut wird.", qCode:"class A {\n    A() { System.out.println(\"A\"); }\n}\nclass B extends A {\n    B() { System.out.println(\"B\"); }\n}\npublic class Test {\n    public static void main(String[] args) {\n        new B();\n    }\n}"},
+  {cat:'algo', sub:'netz', q:"Welche HTTP-Methode wird in einer REST-API typischerweise zum Erstellen einer neuen Ressource verwendet?", a:"POST — sie wird verwendet, um eine neue Ressource zu erstellen, z. B. POST /kunden, um einen neuen Kunden anzulegen. GET dient dem Lesen, PUT/PATCH dem Aktualisieren und DELETE dem Löschen einer Ressource."},
+  {cat:'algo', sub:'netz', q:"Was bedeutet \"zustandslos\" (stateless) als Grundprinzip von REST?", a:"Jede Anfrage an den Server muss alle notwendigen Informationen enthalten, um verarbeitet zu werden — der Server speichert keinen Sitzungszustand (Session) zwischen einzelnen Anfragen eines Clients."},
+  {cat:'algo', sub:'netz', q:"Was bedeutet \"idempotent\" bei einer HTTP-Methode wie PUT oder DELETE?", a:"Mehrfaches identisches Ausführen derselben Anfrage führt zum gleichen Endzustand wie ein einmaliges Ausführen. PUT /kunden/5 mehrfach mit denselben Daten aufzurufen ändert den Zustand nicht erneut — im Gegensatz z. B. zu POST, das bei jedem Aufruf eine neue Ressource anlegen kann."},
+  {cat:'algo', sub:'netz', q:"Was bedeuten die HTTP-Statuscodes 200, 201, 404 und 500?", a:"200 OK: Anfrage erfolgreich verarbeitet. 201 Created: Ressource erfolgreich erstellt (typisch nach POST). 404 Not Found: angeforderte Ressource existiert nicht. 500 Internal Server Error: unerwarteter Fehler auf Serverseite."},
+  {cat:'algo', sub:'netz', q:"Was unterscheidet die HTTP-Statuscodes 401 und 403?", a:"401 Unauthorized bedeutet: Der Client ist nicht (korrekt) authentifiziert (z. B. fehlende/ungültige Anmeldedaten). 403 Forbidden bedeutet: Der Client ist zwar authentifiziert, hat aber keine Berechtigung für die angeforderte Aktion/Ressource."},
+  // ================= Planen eines Softwareproduktes =================
+  {cat:'plan', sub:'sicherheit', q:"Was ist der Unterschied zwischen Hashing und Verschlüsselung?", a:"Verschlüsselung ist umkehrbar (mit dem passenden Schlüssel kann der ursprüngliche Klartext wiederhergestellt werden). Hashing ist eine Einwegfunktion — aus dem Hash-Wert lässt sich der ursprüngliche Wert nicht zurückrechnen. Hashing wird u. a. zur sicheren Passwortspeicherung verwendet."},
+  {cat:'plan', sub:'sicherheit', q:"Was ist Zwei-Faktor-Authentifizierung (2FA)?", a:"Eine Anmeldemethode, die zwei unabhängige Faktoren aus unterschiedlichen Kategorien kombiniert (z. B. Wissen wie ein Passwort + Besitz wie ein Smartphone-Code), um die Sicherheit gegenüber einer reinen Passwortanmeldung deutlich zu erhöhen."},
+  {cat:'plan', sub:'sicherheit', q:"Was versteht man unter Social Engineering?", a:"Manipulationstechniken, die menschliches Vertrauen oder Unachtsamkeit ausnutzen, um an vertrauliche Informationen zu gelangen oder Personen zu Handlungen zu bewegen (z. B. Phishing-E-Mails, vorgetäuschte Anrufe des \"IT-Supports\")."},
+  {cat:'plan', sub:'sicherheit', q:"Warum ist regelmäßiges Patch-Management wichtig für die IT-Sicherheit?", a:"Software-Updates (Patches) schließen bekannt gewordene Sicherheitslücken. Ungepatchte Systeme sind ein beliebtes Angriffsziel, da Schwachstellen oft öffentlich bekannt und leicht ausnutzbar sind."},
+  {cat:'plan', sub:'sicherheit', q:"Was ist ein Denial-of-Service-Angriff (DoS)?", a:"Ein Angriff, der ein System oder einen Dienst durch Überlastung (z. B. massenhafte Anfragen) für legitime Nutzer unerreichbar machen soll — bei verteilten Angriffen über viele Systeme spricht man von DDoS (Distributed Denial of Service)."},
+  {cat:'plan', sub:'pm', q:"Ein Vorgang hat FAZ (frühester Anfangszeitpunkt) = 5 und Dauer = 4. Wie hoch ist der früheste Endzeitpunkt (FEZ)?", a:"FEZ = FAZ + Dauer = 5 + 4 = 9."},
+  {cat:'plan', sub:'pm', q:"Wie berechnet sich der Gesamtpuffer (GP) eines Vorgangs in der Netzplantechnik?", a:"GP = SEZ − FEZ (spätester Endzeitpunkt minus frühester Endzeitpunkt), alternativ auch SAZ − FAZ. Ist GP = 0, liegt der Vorgang auf dem kritischen Pfad."},
+  // ================= Entwicklung & Umsetzung von Algorithmen =================
+  {cat:'algo', sub:'sql', q:"Was bedeutet \"Isolation\" (das I in ACID) bei Datenbanktransaktionen in der Praxis?", a:"Parallel laufende Transaktionen dürfen sich nicht gegenseitig in unerwünschter Weise beeinflussen — jede Transaktion läuft (aus ihrer Sicht) so ab, als wäre sie die einzige, die gerade auf die Datenbank zugreift, obwohl technisch mehrere gleichzeitig ablaufen können."},
+  {cat:'algo', sub:'pseudocode', q:"Was wird hier ausgegeben?", a:"15 (1+2+3+4+5). Die Zählschleife läuft von i=1 bis i=5 (jeweils einschließlich) und addiert bei jedem Durchlauf den aktuellen Wert von i zur Summe.", qCode:"summe := 0\nFÜR i VON 1 BIS 5 TUE\n    summe := summe + i\nENDFÜR\nAUSGABE summe"},
+  {cat:'algo', sub:'pseudocode', q:"Was wird ausgegeben, und wie funktioniert die Prüfung auf gerade/ungerade?", a:"\"ungerade\". MOD liefert den Rest einer Ganzzahldivision — 7 MOD 2 = 1 (ungleich 0), daher wird der SONST-Zweig ausgeführt. Eine Zahl ist genau dann gerade, wenn der Rest bei Division durch 2 gleich 0 ist.", qCode:"zahl := 7\nWENN zahl MOD 2 = 0 DANN\n    AUSGABE \"gerade\"\nSONST\n    AUSGABE \"ungerade\"\nENDWENN"},
+  {cat:'algo', sub:'pseudocode', q:"Welche Werte werden nacheinander ausgegeben?", a:"1, 2, 3. Die kopfgesteuerte SOLANGE-Schleife prüft die Bedingung VOR jedem Durchlauf: Bei i=1,2,3 ist i<=3 wahr, bei i=4 nicht mehr — die Schleife endet dann.", qCode:"i := 1\nSOLANGE i <= 3 TUE\n    AUSGABE i\n    i := i + 1\nENDSOLANGE"},
+  {cat:'algo', sub:'pseudocode', q:"Welche Werte werden ausgegeben — und was unterscheidet diese Schleife von einer SOLANGE-Schleife?", a:"1, 2, 3 — dasselbe Ergebnis wie bei der SOLANGE-Variante. Der Unterschied: WIEDERHOLE...BIS ist fußgesteuert, die Bedingung wird ERST NACH jedem Durchlauf geprüft. Dadurch wird der Schleifenkörper immer mindestens einmal ausgeführt, selbst wenn die Bedingung von Anfang an erfüllt wäre.", qCode:"i := 1\nWIEDERHOLE\n    AUSGABE i\n    i := i + 1\nBIS i > 3"},
+  {cat:'algo', sub:'pseudocode', q:"Was wird hier ausgegeben, und welches gängige Problem löst dieser Algorithmus?", a:"9. Der Algorithmus ermittelt das Maximum eines Feldes (Arrays): max wird mit 0 initialisiert und bei jedem Durchlauf aktualisiert, sobald ein größerer Wert gefunden wird.", qCode:"max := 0\nFeld := [4, 9, 2, 7, 5]\nFÜR i VON 0 BIS 4 TUE\n    WENN Feld[i] > max DANN\n        max := Feld[i]\n    ENDWENN\nENDFÜR\nAUSGABE max"},
+  {cat:'algo', sub:'pseudocode', q:"Was berechnet dieser Pseudocode, und was ist das Ergebnis für n=6?", a:"Er berechnet die Fakultät von n (n!). Ergebnis: 720 (1·2·3·4·5·6 = 720).", qCode:"n := 6\nergebnis := 1\nFÜR i VON 1 BIS n TUE\n    ergebnis := ergebnis * i\nENDFÜR\nAUSGABE ergebnis"},
+  {cat:'algo', sub:'pseudocode', q:"Was wird ausgegeben?", a:"12. Da a (5) nicht größer als b (12) ist, wird der SONST-Zweig ausgeführt und groesser erhält den Wert von b.", qCode:"a := 5\nb := 12\nWENN a > b DANN\n    groesser := a\nSONST\n    groesser := b\nENDWENN\nAUSGABE groesser"},
+  {cat:'algo', sub:'pseudocode', q:"Wie oft wird zaehler erhöht, und was wird am Ende ausgegeben?", a:"6. Von 1 bis 20 sind 3, 6, 9, 12, 15, 18 durch 3 teilbar (i MOD 3 = 0) — das sind 6 Werte, daher wird zaehler sechsmal erhöht.", qCode:"zaehler := 0\nFÜR i VON 1 BIS 20 TUE\n    WENN i MOD 3 = 0 DANN\n        zaehler := zaehler + 1\n    ENDWENN\nENDFÜR\nAUSGABE zaehler"},
+  {cat:'algo', sub:'pseudocode', q:"Welchen Wert hat x am Ende, und wie viele Schleifendurchläufe braucht es dafür?", a:"54, nach 3 Durchläufen: x=2→6 (6<20, weiter)→18 (18<20, weiter)→54 (54<20 ist falsch, Schleife endet). x wird bei jedem Durchlauf mit y (3) multipliziert, bis x nicht mehr kleiner als 20 ist.", qCode:"x := 2\ny := 3\nSOLANGE x < 20 TUE\n    x := x * y\nENDSOLANGE\nAUSGABE x"},
+  {cat:'algo', sub:'pseudocode', q:"Was gibt dieser Algorithmus aus, und was passiert, wenn gesucht nicht im Feld vorkommt?", a:"3 (Index 3, da Feld[3] = 9). Würde gesucht nicht im Feld vorkommen, bliebe position bei ihrem Startwert -1 — ein üblicher Weg, \"nicht gefunden\" darzustellen, da -1 kein gültiger Feldindex ist.", qCode:"Feld := [3, 8, 1, 9, 4]\ngesucht := 9\nposition := -1\nFÜR i VON 0 BIS 4 TUE\n    WENN Feld[i] = gesucht DANN\n        position := i\n    ENDWENN\nENDFÜR\nAUSGABE position"},
+  {cat:'algo', sub:'pseudocode', q:"Was wird ausgegeben?", a:"2. MOD liefert den Rest der Ganzzahldivision: 10 geteilt durch 4 ergibt 2 Rest 2.", qCode:"a := 10\nb := 4\nrest := a MOD b\nAUSGABE rest"},
+  {cat:'algo', sub:'pseudocode', q:"Was berechnet dieser Pseudocode, und welchen Wert hat durchschnitt am Ende?", a:"Er berechnet den Durchschnitt aller geraden Zahlen von 1 bis 10 (2,4,6,8,10). summe = 30, anzahl = 5, durchschnitt = 30 / 5 = 6.", qCode:"summe := 0\nanzahl := 0\nFÜR i VON 1 BIS 10 TUE\n    WENN i MOD 2 = 0 DANN\n        summe := summe + i\n        anzahl := anzahl + 1\n    ENDWENN\nENDFÜR\ndurchschnitt := summe / anzahl\nAUSGABE durchschnitt"},
+  {cat:'algo', sub:'pseudocode', q:"Was wird ausgegeben?", a:"\"ababab\". Bei jedem der 3 Durchläufe wird die Zeichenkette \"ab\" an text angehängt (Konkatenation), beginnend bei einem leeren String.", qCode:"text := \"\"\nFÜR i VON 1 BIS 3 TUE\n    text := text + \"ab\"\nENDFÜR\nAUSGABE text"},
+  {cat:'algo', sub:'pseudocode', q:"Was macht dieser Algorithmus, und was wird für zahl = 17 ausgegeben?", a:"Er prüft, ob zahl eine Primzahl ist, indem er testet, ob sie durch irgendeine Zahl zwischen 2 und zahl-1 ohne Rest teilbar ist. Für 17 (eine Primzahl) bleibt istPrim WAHR, da keine dieser Zahlen ohne Rest teilt.", qCode:"zahl := 17\nistPrim := WAHR\nFÜR i VON 2 BIS zahl - 1 TUE\n    WENN zahl MOD i = 0 DANN\n        istPrim := FALSCH\n    ENDWENN\nENDFÜR\nAUSGABE istPrim"},
+  {cat:'algo', sub:'pseudocode', q:"Was wird nacheinander ausgegeben, und welches bekannte Problem löst dieser Code?", a:"Zuerst 7, dann 3. Der Code vertauscht (swapt) die Werte von a und b mithilfe einer Hilfsvariablen hilf — ohne sie würde beim Zuweisen a := b der ursprüngliche Wert von a überschrieben und ginge verloren.", qCode:"a := 3\nb := 7\nhilf := a\na := b\nb := hilf\nAUSGABE a\nAUSGABE b"},
+  {cat:'algo', sub:'pseudocode', q:"Wie viele Werte werden insgesamt ausgegeben, und welche sind das?", a:"6 Werte (3 Durchläufe der äußeren Schleife × 2 Durchläufe der inneren Schleife): 1, 2, 2, 4, 3, 6 — für jedes i (1,2,3) wird einmal mit j=1 und einmal mit j=2 multipliziert.", qCode:"FÜR i VON 1 BIS 3 TUE\n    FÜR j VON 1 BIS 2 TUE\n        AUSGABE i * j\n    ENDFÜR\nENDFÜR"},
+  {cat:'algo', sub:'pseudocode', q:"Was macht dieser Algorithmus, grob beschrieben?", a:"Er findet heraus, wie viele aufeinanderfolgende Zahlen (beginnend bei 1) mindestens aufsummiert werden müssen, um einen Wert von mindestens 100 zu erreichen, und gibt diese Anzahl aus (i-1, da i nach der Schleife bereits einmal zu weit gezählt wurde).", qCode:"n := 100\nsumme := 0\ni := 1\nSOLANGE summe < n TUE\n    summe := summe + i\n    i := i + 1\nENDSOLANGE\nAUSGABE i - 1"},
+  {cat:'algo', sub:'pseudocode', q:"Was wird für alter = 15 ausgegeben? Erkläre den Ablauf durch die verschachtelten Bedingungen.", a:"\"minderjährig\". Die erste Bedingung (alter >= 18) ist falsch, also wird die verschachtelte WENN-Bedingung geprüft (alter >= 16) — auch diese ist mit 15 falsch, also greift deren SONST-Zweig: \"minderjährig\".", qCode:"alter := 15\nWENN alter >= 18 DANN\n    AUSGABE \"volljährig\"\nSONST\n    WENN alter >= 16 DANN\n        AUSGABE \"fast volljährig\"\n    SONST\n        AUSGABE \"minderjährig\"\n    ENDWENN\nENDWENN"},
+  {cat:'algo', sub:'pseudocode', q:"Welches bekannte Sortierverfahren wird hier in Pseudocode nachgebildet?", a:"Bubble Sort. Benachbarte Elemente werden paarweise verglichen und bei falscher Reihenfolge vertauscht (die klassische hilf-Variablen-Vertauschung); nach jedem äußeren Durchlauf \"sinkt\" das jeweils größte verbleibende Element an seine richtige Position.", qCode:"Feld := [5, 3, 8, 1]\nFÜR i VON 0 BIS 2 TUE\n    FÜR j VON 0 BIS 2 - i TUE\n        WENN Feld[j] > Feld[j+1] DANN\n            hilf := Feld[j]\n            Feld[j] := Feld[j+1]\n            Feld[j+1] := hilf\n        ENDWENN\n    ENDFÜR\nENDFÜR"},
+  {cat:'algo', sub:'pseudocode', q:"Was macht dieser Algorithmus, und wann endet die Schleife?", a:"Er liest wiederholt Zahlen ein und summiert sie auf, bis der Benutzer die Zahl 0 eingibt (Sentinel-/Wächterwert) — 0 dient hier als Abbruchsignal und wird selbst nicht mehr zur Summe addiert.", qCode:"summe := 0\nEINGABE zahl\nSOLANGE zahl <> 0 TUE\n    summe := summe + zahl\n    EINGABE zahl\nENDSOLANGE\nAUSGABE summe"},
+];
+
+let order = DECK.map((_,i)=>i);
+let activeCats = new Set(Object.keys(CATS));
+let availableSubs = [];
+let activeSubs = new Set();
+let pos = 0;
+let flipped = false;
+let known = new Set();
+
+const els = {
+  filters: document.getElementById('filters'),
+  subfilters: document.getElementById('subfilters'),
+  card: document.getElementById('card'),
+  tabFront: document.getElementById('tabFront'),
+  tabTextFront: document.getElementById('tabTextFront'),
+  tabBack: document.getElementById('tabBack'),
+  tabTextBack: document.getElementById('tabTextBack'),
+  qtext: document.getElementById('qtext'),
+  atext: document.getElementById('atext'),
+  qextra: document.getElementById('qextra'),
+  aextra: document.getElementById('aextra'),
+  cardnoFront: document.getElementById('cardnoFront'),
+  cardnoBack: document.getElementById('cardnoBack'),
+  progressFill: document.getElementById('progressFill'),
+  progressText: document.getElementById('progressText'),
+  knownText: document.getElementById('knownText'),
+  prevBtn: document.getElementById('prevBtn'),
+  nextBtn: document.getElementById('nextBtn'),
+  flipBtn: document.getElementById('flipBtn'),
+  yesBtn: document.getElementById('yesBtn'),
+  noBtn: document.getElementById('noBtn'),
+  shuffleBtn: document.getElementById('shuffleBtn'),
+  resetBtn: document.getElementById('resetBtn'),
+  drawerNo: document.getElementById('drawerNo'),
+  themeToggle: document.getElementById('themeToggle'),
+};
+
+function buildFilters(){
+  els.filters.innerHTML = '';
+  const allChip = makeChip('all', 'Alle', null);
+  els.filters.appendChild(allChip);
+  Object.entries(CATS).forEach(([key, c])=>{
+    els.filters.appendChild(makeChip(key, c.short, c));
+  });
+  updateFilterUI();
+}
+
+function makeChip(key, label, catObj){
+  const btn = document.createElement('button');
+  btn.className = 'chip';
+  btn.dataset.key = key;
+  const dot = document.createElement('span');
+  dot.className = 'dot';
+  dot.style.background = catObj ? `var(${catObj.var})` : 'var(--ink-soft)';
+  btn.appendChild(dot);
+  const span = document.createElement('span');
+  span.textContent = label;
+  btn.appendChild(span);
+  btn.addEventListener('click', ()=> toggleCat(key));
+  return btn;
+}
+
+function toggleCat(key){
+  // tapping "Alle" shows everything. Tapping a specific chip while everything
+  // is showing narrows down to just that one; tapping more chips after that
+  // adds them to the selection, so several topics can be studied together.
+  // Tapping an already-selected chip removes it; removing the last one falls
+  // back to "Alle" instead of leaving the deck empty.
+  const allKeys = Object.keys(CATS);
+  if(key === 'all'){
+    activeCats = new Set(allKeys);
+  } else if(activeCats.size === allKeys.length){
+    activeCats = new Set([key]);
+  } else if(activeCats.has(key)){
+    activeCats.delete(key);
+    if(activeCats.size === 0){
+      activeCats = new Set(allKeys);
+    }
+  } else {
+    activeCats.add(key);
+  }
+  updateFilterUI();
+  buildSubFilters();
+  rebuildOrder();
+}
+
+function updateFilterUI(){
+  const all = activeCats.size === Object.keys(CATS).length;
+  [...els.filters.children].forEach(chip=>{
+    const key = chip.dataset.key;
+    if(key === 'all'){
+      chip.dataset.active = all ? 'true' : 'false';
+    } else {
+      chip.dataset.active = activeCats.has(key) ? 'true' : 'false';
+    }
+  });
+}
+
+function buildSubFilters(){
+  // which sub-topics actually occur among the currently selected main categories
+  const seen = new Set();
+  availableSubs = [];
+  DECK.forEach(c=>{
+    if(activeCats.has(c.cat) && !seen.has(c.sub)){
+      seen.add(c.sub);
+      availableSubs.push(c.sub);
+    }
+  });
+  activeSubs = new Set(availableSubs);
+
+  els.subfilters.innerHTML = '';
+  if(availableSubs.length <= 1){
+    return; // nothing meaningful to filter further
+  }
+  const allChip = makeSubChip('all-sub', 'Alle Themen');
+  els.subfilters.appendChild(allChip);
+  availableSubs.forEach(key=>{
+    els.subfilters.appendChild(makeSubChip(key, SUBLABELS[key] || key));
+  });
+  updateSubFilterUI();
+}
+
+function makeSubChip(key, label){
+  const btn = document.createElement('button');
+  btn.className = 'chip';
+  btn.dataset.key = key;
+  const span = document.createElement('span');
+  span.textContent = label;
+  btn.appendChild(span);
+  btn.addEventListener('click', ()=> toggleSub(key));
+  return btn;
+}
+
+function toggleSub(key){
+  // same rule as the main filters: start from "Alle Themen", tap topics to
+  // build up a selection (SQL + UML together, say), tap a selected one again
+  // to drop it, and dropping the last one falls back to "Alle Themen".
+  if(key === 'all-sub'){
+    activeSubs = new Set(availableSubs);
+  } else if(activeSubs.size === availableSubs.length){
+    activeSubs = new Set([key]);
+  } else if(activeSubs.has(key)){
+    activeSubs.delete(key);
+    if(activeSubs.size === 0){
+      activeSubs = new Set(availableSubs);
+    }
+  } else {
+    activeSubs.add(key);
+  }
+  updateSubFilterUI();
+  rebuildOrder();
+}
+
+function updateSubFilterUI(){
+  const all = activeSubs.size === availableSubs.length;
+  [...els.subfilters.children].forEach(chip=>{
+    const key = chip.dataset.key;
+    if(key === 'all-sub'){
+      chip.dataset.active = all ? 'true' : 'false';
+    } else {
+      chip.dataset.active = activeSubs.has(key) ? 'true' : 'false';
+    }
+  });
+}
+
+function rebuildOrder(){
+  order = DECK.map((_,i)=>i).filter(i => activeCats.has(DECK[i].cat) && activeSubs.has(DECK[i].sub));
+  pos = 0;
+  flipped = false;
+  render();
+}
+
+function shuffle(){
+  for(let i=order.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  pos = 0;
+  flipped = false;
+  render();
+}
+
+function currentCard(){
+  return DECK[order[pos]];
+}
+
+function fillExtra(container, code, svg){
+  container.innerHTML = '';
+  if(code){
+    const pre = document.createElement('pre');
+    pre.className = 'codeblock';
+    pre.textContent = code;
+    container.appendChild(pre);
+  }
+  if(svg){
+    const div = document.createElement('div');
+    div.className = 'diagram';
+    div.innerHTML = svg;
+    container.appendChild(div);
+  }
+}
+
+function render(){
+  if(order.length === 0){
+    els.qtext.textContent = 'Keine Karten in dieser Auswahl.';
+    els.atext.textContent = '';
+    els.qextra.innerHTML = '';
+    els.aextra.innerHTML = '';
+    els.progressText.textContent = '0 von 0';
+    els.progressFill.style.width = '0%';
+    return;
+  }
+  const c = currentCard();
+  const meta = CATS[c.cat];
+  els.qtext.textContent = c.q;
+  els.atext.textContent = c.a;
+  fillExtra(els.qextra, c.qCode, c.qSvg);
+  fillExtra(els.aextra, c.aCode, c.aSvg);
+
+  [els.tabFront, els.tabBack].forEach(tab=>{
+    tab.style.background = `var(${meta.bg})`;
+    tab.style.color = `var(${meta.var})`;
+    tab.querySelector('.dot').style.background = `var(${meta.var})`;
+  });
+  els.tabTextFront.textContent = meta.label;
+  els.tabTextBack.textContent = meta.label;
+
+  const num = `${pos+1} / ${order.length}`;
+  els.cardnoFront.textContent = num;
+  els.cardnoBack.textContent = num;
+
+  els.card.classList.toggle('flipped', flipped);
+  els.progressText.textContent = `Karte ${pos+1} von ${order.length}`;
+  els.knownText.textContent = `${known.size} gewusst`;
+  els.progressFill.style.width = `${((pos)/order.length)*100}%`;
+
+  els.prevBtn.disabled = pos === 0;
+  els.drawerNo.textContent = `Schublade ${String(pos+1).padStart(2,'0')} / ${String(order.length).padStart(2,'0')}`;
+
+  resizeCardToContent();
+}
+
+function measureFaceHeight(faceEl){
+  const rect = faceEl.getBoundingClientRect();
+  const width = rect.width || els.card.getBoundingClientRect().width || 300;
+  const clone = faceEl.cloneNode(true);
+  clone.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
+  clone.style.position = 'absolute';
+  clone.style.visibility = 'hidden';
+  clone.style.pointerEvents = 'none';
+  clone.style.left = '-9999px';
+  clone.style.top = '0';
+  clone.style.right = 'auto';
+  clone.style.bottom = 'auto';
+  clone.style.width = width + 'px';
+  clone.style.height = 'auto';
+  clone.style.minHeight = '0';
+  clone.style.maxHeight = 'none';
+  clone.style.overflow = 'visible';
+  document.body.appendChild(clone);
+  const h = clone.scrollHeight;
+  document.body.removeChild(clone);
+  return h;
+}
+
+function resizeCardToContent(){
+  if(order.length === 0) return;
+  const front = els.card.querySelector('.face.front');
+  const back = els.card.querySelector('.face.back');
+  if(!front || !back) return;
+  const needed = Math.max(measureFaceHeight(front), measureFaceHeight(back), 280);
+  els.card.style.height = needed + 'px';
+}
+
+function flip(){
+  if(order.length === 0) return;
+  flipped = !flipped;
+  els.card.classList.toggle('flipped', flipped);
+}
+
+function next(){
+  if(order.length === 0) return;
+  flipped = false;
+  pos = (pos + 1) % order.length;
+  render();
+}
+
+function prev(){
+  if(order.length === 0 || pos === 0) return;
+  flipped = false;
+  pos -= 1;
+  render();
+}
+
+function markKnown(isKnown){
+  if(order.length === 0) return;
+  const idx = order[pos];
+  if(isKnown){ known.add(idx); } else { known.delete(idx); }
+  next();
+}
+
+els.card.addEventListener('click', flip);
+els.card.addEventListener('keydown', (e)=>{
+  if(e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); flip(); }
+});
+els.flipBtn.addEventListener('click', flip);
+els.nextBtn.addEventListener('click', next);
+els.prevBtn.addEventListener('click', prev);
+els.yesBtn.addEventListener('click', ()=>markKnown(true));
+els.noBtn.addEventListener('click', ()=>markKnown(false));
+els.shuffleBtn.addEventListener('click', shuffle);
+els.resetBtn.addEventListener('click', ()=>{
+  known.clear();
+  pos = 0;
+  flipped = false;
+  render();
+});
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'ArrowRight') next();
+  if(e.key === 'ArrowLeft') prev();
+});
+
+let resizeTimer = null;
+window.addEventListener('resize', ()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(resizeCardToContent, 120);
+});
+
+if(document.fonts && document.fonts.ready){
+  document.fonts.ready.then(()=> resizeCardToContent());
+}
+
+// Registers the offline service worker when the page is served over
+// http(s) (a published link). On a locally opened file (file://) this
+// silently does nothing — the card data is already inline, so the page
+// works fully offline either way once it has loaded once.
+if('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+
+// Light/dark theme toggle. Defaults to following the phone's system setting
+// (Automatisch); an explicit choice is remembered per-device so it sticks
+// the next time the app is opened, but it's just a local convenience —
+// never required for the app to work.
+const THEME_KEY = 'ap2-lernkartei-theme';
+const THEME_ORDER = ['auto', 'light', 'dark'];
+const THEME_LABELS = { auto: 'Automatisch', light: 'Hell', dark: 'Dunkel' };
+const THEME_ICONS = {
+  auto: '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke-width="1.3"/><line x1="8" y1="2" x2="8" y2="14" stroke-width="1.3"/></svg>',
+  light: '<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3" fill="none" stroke-width="1.3"/><line x1="8" y1="1" x2="8" y2="2.5" stroke-width="1.3"/><line x1="8" y1="13.5" x2="8" y2="15" stroke-width="1.3"/><line x1="1" y1="8" x2="2.5" y2="8" stroke-width="1.3"/><line x1="13.5" y1="8" x2="15" y2="8" stroke-width="1.3"/><line x1="3.1" y1="3.1" x2="4.2" y2="4.2" stroke-width="1.3"/><line x1="11.8" y1="11.8" x2="12.9" y2="12.9" stroke-width="1.3"/><line x1="3.1" y1="12.9" x2="4.2" y2="11.8" stroke-width="1.3"/><line x1="11.8" y1="4.2" x2="12.9" y2="3.1" stroke-width="1.3"/></svg>',
+  dark: '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 9.5A5.5 5.5 0 1 1 6.5 3a4.3 4.3 0 1 0 6.5 6.5z" fill="none" stroke-width="1.3" stroke-linejoin="round"/></svg>',
+};
+
+function loadThemePref(){
+  try{
+    const v = localStorage.getItem(THEME_KEY);
+    if(v === 'light' || v === 'dark') return v;
+  }catch(e){}
+  return 'auto';
+}
+
+function saveThemePref(pref){
+  try{
+    if(pref === 'auto') localStorage.removeItem(THEME_KEY);
+    else localStorage.setItem(THEME_KEY, pref);
+  }catch(e){}
+}
+
+function applyTheme(pref){
+  if(pref === 'auto') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', pref);
+  if(els.themeToggle){
+    els.themeToggle.innerHTML = THEME_ICONS[pref] + '<span>' + THEME_LABELS[pref] + '</span>';
+    els.themeToggle.setAttribute('aria-label', 'Design: ' + THEME_LABELS[pref] + ' (Automatisch, Hell oder Dunkel) — zum Wechseln klicken');
+  }
+}
+
+let themePref = loadThemePref();
+applyTheme(themePref);
+if(els.themeToggle){
+  els.themeToggle.addEventListener('click', ()=>{
+    const i = THEME_ORDER.indexOf(themePref);
+    themePref = THEME_ORDER[(i + 1) % THEME_ORDER.length];
+    saveThemePref(themePref);
+    applyTheme(themePref);
+  });
+}
+
+buildFilters();
+buildSubFilters();
+rebuildOrder();
+</script>
+</body>
+</html>
