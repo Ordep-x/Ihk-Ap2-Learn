@@ -1,6 +1,6 @@
 # AP2 Lernkartei
 
-Flashcard app for the German "Fachinformatiker/-in Anwendungsentwicklung" apprenticeship exam (AP2). Static site, no backend — just HTML, CSS and JavaScript, installable on a phone as a PWA.
+Flashcard app for the German "Fachinformatiker/-in Anwendungsentwicklung" apprenticeship exam (AP2). Static site, no backend -> just HTML, CSS and JavaScript, installable on a phone as a PWA.
 
 ## Files
 
@@ -14,6 +14,7 @@ icon-192-maskable.png       192×192 maskable icon (Android)
 icon-512-maskable.png       512×512 maskable icon
 LICENSE                     usage terms (CC BY-NC-SA 4.0)
 README.md                   this file
+
 ```
 
 ## Install on your phone
@@ -24,8 +25,11 @@ README.md                   this file
 
 ## Content reliability
 
-The 310 questions and answers were written with AI assistance (Claude), based on general subject-matter knowledge of the AP2 syllabus — not copied from any commercial source. The full set was then reviewed topic by topic against authoritative references, with factual corrections applied where needed. This is a study aid, not a substitute for official IHK materials.
+The 310 questions and answers were written with AI assistance (Claude), based on general subject-matter knowledge of the AP2 syllabus —> not copied from any commercial source. The full set was then reviewed topic by topic against authoritative references, with factual corrections applied where needed. **This is a study aid, not a substitute for official IHK materials.**
 
 ## License
 
-The 310 flashcards and the app code are licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) — free for anyone to use, copy and adapt, credit required, no commercial use, and any redistribution must stay under the same license. See the `LICENSE` file for the full notice.
+The 310 flashcards and the app code are licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) —> free for anyone to use, copy and adapt, credit required, no commercial use, and any redistribution must stay under the same license. See the `LICENSE` file for the full notice.
+
+## Fun 
+Have fun to learn and give feedback how to improve it!  😎 °-° 👽
