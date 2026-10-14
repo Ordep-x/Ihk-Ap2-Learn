@@ -392,6 +392,14 @@
     cursor:pointer;
     padding:4px;
   }
+  .license-line{
+    margin-top:10px;
+    font-size:.6rem;
+    opacity:.75;
+  }
+  .license-line a{
+    color:inherit;
+  }
 
   @media (prefers-reduced-motion: reduce){
     .card{transition:none;}
@@ -456,6 +464,7 @@
   <footer>
     <button id="shuffleBtn">mischen</button> ·
     <button id="resetBtn">Fortschritt zurücksetzen</button>
+    <div class="license-line">Lizenziert unter <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.de" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> — frei für alle, nicht kommerziell</div>
   </footer>
 
 </div>
@@ -828,6 +837,35 @@ let pos = 0;
 let flipped = false;
 let known = new Set();
 
+// Remembers where you left off (which cards, in which order, which filter,
+// which ones you already marked "gewusst") so reopening the app continues
+// instead of starting over at card 1 every time. Purely a per-device
+// convenience via localStorage — never required for the app to work, and
+// "Fortschritt zurücksetzen" clears it for a clean restart.
+const PROGRESS_KEY = 'ap2-lernkartei-progress';
+
+function saveProgress(){
+  try{
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify({
+      order, pos,
+      known: [...known],
+      activeCats: [...activeCats],
+      activeSubs: [...activeSubs],
+    }));
+  }catch(e){}
+}
+
+function loadProgress(){
+  try{
+    const raw = localStorage.getItem(PROGRESS_KEY);
+    if(!raw) return null;
+    const saved = JSON.parse(raw);
+    if(!Array.isArray(saved.order) || !saved.order.every(i => Number.isInteger(i) && i >= 0 && i < DECK.length)) return null;
+    if(typeof saved.pos !== 'number' || saved.pos < 0 || saved.pos >= Math.max(saved.order.length, 1)) return null;
+    return saved;
+  }catch(e){ return null; }
+}
+
 const els = {
   filters: document.getElementById('filters'),
   subfilters: document.getElementById('subfilters'),
@@ -989,6 +1027,7 @@ function rebuildOrder(){
   pos = 0;
   flipped = false;
   render();
+  saveProgress();
 }
 
 function shuffle(){
@@ -999,6 +1038,7 @@ function shuffle(){
   pos = 0;
   flipped = false;
   render();
+  saveProgress();
 }
 
 function currentCard(){
@@ -1104,6 +1144,7 @@ function next(){
   flipped = false;
   pos = (pos + 1) % order.length;
   render();
+  saveProgress();
 }
 
 function prev(){
@@ -1111,6 +1152,7 @@ function prev(){
   flipped = false;
   pos -= 1;
   render();
+  saveProgress();
 }
 
 function markKnown(isKnown){
@@ -1135,6 +1177,7 @@ els.resetBtn.addEventListener('click', ()=>{
   pos = 0;
   flipped = false;
   render();
+  saveProgress();
 });
 
 document.addEventListener('keydown', (e)=>{
@@ -1210,9 +1253,28 @@ if(els.themeToggle){
   });
 }
 
-buildFilters();
-buildSubFilters();
-rebuildOrder();
+const savedProgress = loadProgress();
+if(savedProgress){
+  // Resume exactly where the last visit left off: same filter, same
+  // shuffle/sequence, same card, same "gewusst" marks.
+  activeCats = new Set(savedProgress.activeCats && savedProgress.activeCats.length ? savedProgress.activeCats : Object.keys(CATS));
+  buildFilters();
+  buildSubFilters(); // recomputes availableSubs from activeCats, defaults activeSubs to "all"
+  if(savedProgress.activeSubs && savedProgress.activeSubs.length){
+    const restoredSubs = savedProgress.activeSubs.filter(s => availableSubs.includes(s));
+    if(restoredSubs.length) activeSubs = new Set(restoredSubs);
+  }
+  updateSubFilterUI();
+  order = savedProgress.order;
+  pos = savedProgress.pos;
+  known = new Set(savedProgress.known || []);
+  flipped = false;
+  render();
+} else {
+  buildFilters();
+  buildSubFilters();
+  rebuildOrder();
+}
 </script>
 </body>
 </html>
