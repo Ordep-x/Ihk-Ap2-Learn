@@ -1,11 +1,12 @@
 # AP2 Lernkartei
 
-Flashcard app for the German "Fachinformatiker/-in Anwendungsentwicklung" apprenticeship exam (AP2). Static site, no backend -> just HTML, CSS and JavaScript, installable on a phone as a PWA.
+Flashcard app for the German "Fachinformatiker/-in Anwendungsentwicklung" apprenticeship exam (AP2). Static site, no backend — just HTML, CSS and JavaScript, installable on a phone as a PWA.
 
 ## Files
 
 ```
-index.html                 main app (HTML, CSS, JS and all 310 cards, self-contained)
+index.html                 main app (HTML, CSS, JS and all 298 cards, self-contained)
+quiz.html                   multiple-choice quiz covering all 298 cards
 manifest.json               PWA metadata (name, icon, colors)
 sw.js                       service worker (offline cache)
 icon-192.png                192×192 icon
@@ -14,7 +15,6 @@ icon-192-maskable.png       192×192 maskable icon (Android)
 icon-512-maskable.png       512×512 maskable icon
 LICENSE                     usage terms (CC BY-NC-SA 4.0)
 README.md                   this file
-
 ```
 
 ## Install on your phone
@@ -25,11 +25,10 @@ README.md                   this file
 
 ## Content reliability
 
-The 310 questions and answers were written with AI assistance (Claude), based on general subject-matter knowledge of the AP2 syllabus —> not copied from any commercial source. The full set was then reviewed topic by topic against authoritative references, with factual corrections applied where needed. **This is a study aid, not a substitute for official IHK materials.**
+The 298 questions and answers were written with AI assistance (Claude), based on general subject-matter knowledge of the AP2 syllabus — not copied from any commercial source. The full set was then reviewed topic by topic against authoritative references, with factual corrections applied where needed. This is a study aid, not a substitute for official IHK materials.
+
+The 9 "Algorithmen-Pseudocode" cards (also in `quiz.html`) teach the recurring structural patterns seen across AP2 algorithm exercises (counting with a condition, sorting with a comparator, searching with a sentinel value, histograms, debugging with a trace table, and so on), using original scenarios written for this app — not exercises copied from any specific exam paper.
 
 ## License
 
-The 310 flashcards and the app code are licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) —> free for anyone to use, copy and adapt, credit required, no commercial use, and any redistribution must stay under the same license. See the `LICENSE` file for the full notice.
-
-## Fun 
-Have fun to learn and give feedback how to improve it!  😎 °-° 👽
+The 298 flashcards, the quiz and the app code are licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) — free for anyone to use, copy and adapt, credit required, no commercial use, and any redistribution must stay under the same license. See the `LICENSE` file for the full notice.
